@@ -1,0 +1,27 @@
+{
+  "canisters": {
+    "NeuroPad_backend": {
+      "candid": "src/NeuroPad_backend/NeuroPad_backend.did",
+      "package": "NeuroPad_backend",
+      "type": "rust"
+    },
+    "NeuroPad_frontend": {
+      "dependencies": [
+        "NeuroPad_backend"
+      ],
+      "source": [
+        "src/NeuroPad_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "NeuroPad_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
