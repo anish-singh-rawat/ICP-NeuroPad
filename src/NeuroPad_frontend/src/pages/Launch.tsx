@@ -105,12 +105,18 @@ export default function Launch() {
     },
     {
       id: 3,
+      title: "Tokenomics Configuration",
+      description: "Configure token economics and funding",
+      icon: Settings,
+    },
+    {
+      id: 4,
       title: "Tokenomics Design",
       description: "Customize your token distribution plan",
       icon: PieChart,
     },
     {
-      id: 4,
+      id: 5,
       title: "Schedule & Launch",
       description: "Set launch date and confirm submission",
       icon: Calendar,
@@ -736,7 +742,7 @@ export default function Launch() {
                               <span className="text-muted-foreground">
                                 Category:
                               </span>
-                              <span>{formData.category || "—"}</span>
+                              <span>{formData.category || "���"}</span>
                             </div>
                             {formData.launchType === "genesis" && (
                               <div className="flex justify-between">
