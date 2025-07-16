@@ -124,7 +124,7 @@ export default function Launch() {
   ];
 
   const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
@@ -742,7 +742,7 @@ export default function Launch() {
                               <span className="text-muted-foreground">
                                 Category:
                               </span>
-                              <span>{formData.category || "���"}</span>
+                              <span>{formData.category || "—"}</span>
                             </div>
                             {formData.launchType === "genesis" && (
                               <div className="flex justify-between">
