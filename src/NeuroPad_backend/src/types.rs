@@ -469,7 +469,7 @@ pub struct UserProfile {
     pub profile_img: String,
     pub image_canister: Principal,
     pub username: String,
-    pub dao_ids: Vec<Principal>,
+    pub agent_ids: Vec<Principal>,
     pub post_count: u32,
     pub post_id: Vec<String>,
     pub description: String,
@@ -478,7 +478,7 @@ pub struct UserProfile {
     pub twitter_id: String,
     pub telegram: String,
     pub website: String,
-    pub join_dao :  Vec<Principal>,
+    pub join_agent :  Vec<Principal>,
     pub submitted_proposals : u64,
 }
 
@@ -511,14 +511,6 @@ pub struct MinimalProfileinput {
     pub image_content: ByteBuf,
     pub image_title: String,
     pub image_content_type: String,
-}
-
-#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
-pub struct DaoGroup {
-    pub group_name: String,
-    pub group_members: Vec<Principal>,
-    pub group_permissions: Vec<ProposalType>,
-    pub quorem: u8,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
@@ -589,7 +581,7 @@ pub struct AgentInput {
 }
 
     #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
-pub struct DaoCanisterInput {
+pub struct AgentCanisterInput {
     pub agent_name: String,
     pub purpose: String,
     pub link_of_document: String,
@@ -602,7 +594,7 @@ pub struct DaoCanisterInput {
     pub image_id: String,
     pub image_canister: Principal,
     pub parent_agent_canister_id: Principal,
-    pub all_dao_user : Vec<Principal>,
+    pub all_agent_user : Vec<Principal>,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
@@ -680,27 +672,12 @@ pub struct LedgerCanisterId {
     pub id: Principal,
 }
 
-// dao response
-#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
-pub struct DaoResponse {
-    pub dao_id: Principal,
-    pub dao_name: String,
-    pub purpose: String,
-    pub daotype: String,
-    pub link_of_document: String,
-    pub cool_down_period: String,
-    pub tokenissuer: String,
-    pub linksandsocials: Vec<String>,
-    pub required_votes: i8,
-    pub groups_count: u64,
-    pub group_name: Vec<String>,
-}
 
 #[derive(CandidType, Clone, Serialize, Debug, Deserialize, Default)]
 pub struct Analytics {
     pub members_count: u64,
     pub proposals_count: u64,
-    pub dao_counts: u64,
+    pub agent_counts: u64,
     pub post_count: u64,
 }
 
@@ -800,36 +777,13 @@ pub struct ProposalValueStore {
     pub proposal_expired_at: u64,
     pub required_votes: u32,
     pub created_by: Principal,
-    pub proposal_type: ProposalType,
     pub principal_action: Principal,
-    // pub total_tokens: u32,
-    pub dao_members: Vec<Principal>, // pub votes:
-    // pub proposal_entry : ProposalPlace,
+    pub agent_members: Vec<Principal>,
     pub minimum_threadsold : u64,
 }
 
-#[derive(Debug, Clone, CandidType, Deserialize, Serialize, PartialEq, Eq)]
-pub enum ProposalType {
-    AddMemberToDaoProposal,
-    AddMemberToGroupProposal,
-    RemoveMemberToDaoProposal,
-    RemoveMemberToGroupProposal,
-    ChangeDaoConfig,
-    ChangeDaoPolicy,
-    BountyRaised,
-    BountyDone,
-    Polls,
-    TokenTransfer,
-    GeneralPurpose,
-    MintNewTokens,
-    ChangeGroupPermissions,
-}
-
-// const MAX_VALUE_SIZE: u32 = 800;
 const MAX_VALUE_SIZE_ANALYTICS: u32 = 300;
-// const MAX_VALUE_SIZE_DAO: u32 = 400;
 const MAX_VALUE_SIZE_CANISTER_DATA: u32 = 600;
-// const MAX_VALUE_SIZE: u32 = 600;
 
 impl Storable for UserProfile {
     fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
@@ -859,11 +813,6 @@ impl Storable for PostInfo {
     }
 
     const BOUND: Bound = Bound::Unbounded;
-
-    // const BOUND: Bound = Bound::Bounded {
-    //     max_size: MAX_VALUE_SIZE,
-    //     is_fixed_size: false,
-    // };
 }
 
 impl Storable for AgentDetails {
@@ -876,11 +825,6 @@ impl Storable for AgentDetails {
     }
 
     const BOUND: Bound = Bound::Unbounded;
-
-    // const BOUND: Bound = Bound::Bounded {
-    //     max_size: MAX_VALUE_SIZE_DAO,
-    //     is_fixed_size: false,
-    // };
 }
 
 impl Storable for Analytics {

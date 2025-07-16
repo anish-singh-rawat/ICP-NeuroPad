@@ -10,7 +10,7 @@ pub struct State {
 
     pub post_detail: StableBTreeMap<String, PostInfo, Memory>,
 
-    pub dao_details: StableBTreeMap<Principal, AgentDetails, Memory>,
+    pub agent_details: StableBTreeMap<Principal, AgentDetails, Memory>,
 
     pub analytics_content: StableBTreeMap<u64, Analytics, Memory>,
 
@@ -31,7 +31,7 @@ impl State {
         Self {
             user_profile: init_file_contents(),
             post_detail: post_file_contents(),
-            dao_details: agent_file_contents(),
+            agent_details: agent_file_contents(),
             analytics_content: analytics_content(),
             wasm_module: init_wasm_module(),
             canister_ids : init_canister_ids(),

@@ -10,41 +10,40 @@ use icrc_ledger_types::{
 use crate::guards::*;
 use ic_cdk::query;
 
-use super::create_dao;
+use super::create_agent;
 
 #[query(guard = prevent_anonymous)]
 fn get_all_agent_pagination(page_data: Pagination) -> Vec<AgentDetails> {
-    let mut daos: Vec<AgentDetails> = Vec::new();
+    let mut agents: Vec<AgentDetails> = Vec::new();
     with_state(|state| {
-        for y in state.dao_details.iter() {
-            daos.push(y.1);
+        for y in state.agent_details.iter() {
+            agents.push(y.1);
         }
     });
-    let ending = daos.len();
+    let ending = agents.len();
     if ending == 0 {
-        return daos;
+        return agents;
     }
     let start = page_data.start as usize;
     let end = page_data.end as usize;
     if start < ending {
         let end = end.min(ending);
-        return daos[start..end].to_vec();
+        return agents[start..end].to_vec();
     }
     Vec::new()
-    // daos
 }
 
 
 
 #[query(guard = prevent_anonymous)]
 fn get_all_agent() -> Vec<AgentDetails> {
-    let mut daos: Vec<AgentDetails> = Vec::new();
+    let mut agents: Vec<AgentDetails> = Vec::new();
     with_state(|state| {
-        for y in state.dao_details.iter() {
-            daos.push(y.1);
+        for y in state.agent_details.iter() {
+            agents.push(y.1);
         }
     });
-    return  daos;
+    return  agents;
 }
 
 
@@ -92,8 +91,8 @@ async fn make_payment_and_create_agent(agent_details:AgentInput)->Result<String,
     match result {
         Err(error) => Err(error),
         Ok(_) => {
-            let dao_response: Result<String, String> = create_dao(agent_details).await;
-            match dao_response {
+            let agent_response: Result<String, String> = create_agent(agent_details).await;
+            match agent_response {
                 Err(error) => Err(error),
                 Ok(response) => Ok(response),
             }
@@ -106,7 +105,7 @@ fn search_agent(agent_name: String) -> Vec<AgentDetails> {
     let mut agents: Vec<AgentDetails> = Vec::new();
 
     with_state(|state| {
-        for y in state.dao_details.iter() {
+        for y in state.agent_details.iter() {
             if y.1.agent_name.contains(&agent_name) {
                 agents.push(y.1.clone())
             }

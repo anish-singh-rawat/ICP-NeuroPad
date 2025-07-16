@@ -50,34 +50,18 @@ type Profileinput = record {
   telegram : text;
   tag_defines : vec text;
 };
-type ProposalType = variant {
-  RemoveMemberToDaoProposal;
-  ChangeDaoConfig;
-  BountyDone;
-  Polls;
-  ChangeDaoPolicy;
-  MintNewTokens;
-  TokenTransfer;
-  AddMemberToDaoProposal;
-  RemoveMemberToGroupProposal;
-  ChangeGroupPermissions;
-  BountyRaised;
-  AddMemberToGroupProposal;
-  GeneralPurpose;
-};
 type ProposalValueStore = record {
   proposal_expired_at : nat64;
   minimum_threadsold : nat64;
   proposal_submitted_at : nat64;
+  agent_members : vec principal;
   principal_action : principal;
   created_by : principal;
   associated_agent_canister_id : principal;
   proposal_description : text;
   proposal_id : text;
   propsal_title : text;
-  proposal_type : ProposalType;
   required_votes : nat32;
-  dao_members : vec principal;
 };
 type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok : UserProfile; Err : text };
@@ -86,13 +70,13 @@ type UserProfile = record {
   image_canister : principal;
   post_id : vec text;
   username : text;
-  dao_ids : vec principal;
-  join_dao : vec principal;
   twitter_id : text;
+  agent_ids : vec principal;
   description : text;
   post_count : nat32;
   user_id : principal;
   website : text;
+  join_agent : vec principal;
   contact_number : text;
   email_id : text;
   profile_img : text;
@@ -103,7 +87,7 @@ type UserProfile = record {
 service : (InitialArgs) -> {
   add_proposal : (ProposalValueStore) -> (Result);
   check_user_existance : () -> (Result) query;
-  create_dao : (AgentInput) -> (Result);
+  create_agent : (AgentInput) -> (Result);
   create_profile : (MinimalProfileinput) -> (Result);
   get_all_agent : () -> (vec AgentDetails) query;
   get_all_agent_pagination : (Pagination) -> (vec AgentDetails) query;
@@ -111,7 +95,6 @@ service : (InitialArgs) -> {
   get_user_profile : () -> (Result_1) query;
   make_payment_and_create_agent : (AgentInput) -> (Result);
   search_agent : (text) -> (vec AgentDetails) query;
-  store_join_dao : (principal, principal) -> (Result_2);
   update_profile : (Profileinput) -> (Result_2);
   upload_image : (ImageData) -> (Result);
 }

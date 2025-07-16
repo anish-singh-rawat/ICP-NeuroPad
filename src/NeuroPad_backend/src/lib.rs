@@ -7,7 +7,6 @@ pub mod routes;
 mod state_handler;
 use state_handler::State;
 mod memory;
-use candid::Principal;
 pub use functions::*;
 use memory::Memory;
 pub mod utils;
@@ -50,13 +49,13 @@ async fn init(args: InitialArgs) {
     });
 
     with_state(|state| {
-        let dao_wasm_module: Vec<u8> =
+        let agent_wasm_module: Vec<u8> =
             include_bytes!("../../../.dfx/local/canisters/agent_canister/agent_canister.wasm").to_vec();
 
         state.borrow_mut().wasm_module.insert(
             0,
             WasmArgs {
-                wasm: dao_wasm_module,
+                wasm: agent_wasm_module,
             },
         );
 

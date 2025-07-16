@@ -76,7 +76,7 @@ pub fn get_my_proposal_controller(
     let mut my_proposals: Vec<ProposalValueStore> = Vec::new();
 
     for (_key, val) in state.proposal_store.iter() {
-        if val.dao_members.contains(&ic_cdk::api::caller()) {
+        if val.agent_members.contains(&ic_cdk::api::caller()) {
             my_proposals.push(val);
         }
     }

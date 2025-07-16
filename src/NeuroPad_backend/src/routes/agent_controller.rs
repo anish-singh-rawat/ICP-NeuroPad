@@ -7,8 +7,7 @@ use crate::types::{CanisterInstallMode, CreateCanisterArgument, InstallCodeArgum
 use crate::with_state;
 use candid::{Nat, Principal};
 
-// to create dao canister
-pub async fn create_dao_canister(agent_detail: crate::AgentInput) -> Result<Principal, String> {
+pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Principal, String> {
     let principal_id = ic_cdk::api::caller();
     let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
 
@@ -58,7 +57,7 @@ pub async fn create_dao_canister(agent_detail: crate::AgentInput) -> Result<Prin
     };
 
 
-    let update_agent_detail = crate::DaoCanisterInput {
+    let update_agent_detail = crate::AgentCanisterInput {
         agent_name: agent_detail.agent_name.clone(),
         purpose: agent_detail.purpose.clone(),
         link_of_document: agent_detail.link_of_document,
@@ -71,14 +70,14 @@ pub async fn create_dao_canister(agent_detail: crate::AgentInput) -> Result<Prin
         token_symbol: agent_detail.token_symbol,
         token_supply: agent_detail.token_supply,
         parent_agent_canister_id: ic_cdk::api::id(),
-        all_dao_user : vec![],
+        all_agent_user : vec![],
     };
 
     // encoding params that is to be passed to new canister
     let agent_detail_bytes: Vec<u8> = match encode_one(&update_agent_detail) {
         Ok(bytes) => bytes,
         Err(e) => {
-            return Err(format!("Failed to serialize DaoInput: {}", e));
+            return Err(format!("Failed to serialize AgentInput: {}", e));
         }
     };
 
@@ -92,7 +91,6 @@ pub async fn create_dao_canister(agent_detail: crate::AgentInput) -> Result<Prin
         settings: Some(all_controllers),
     };
 
-    // creating empty new canister
     let (canister_id,) = match create_new_canister(arg).await {
         Ok(id) => id,
         Err((_, err_string)) => {
@@ -102,14 +100,12 @@ pub async fn create_dao_canister(agent_detail: crate::AgentInput) -> Result<Prin
 
     let canister_id_principal = canister_id.canister_id;
 
-    // adding cycles to newly created DAO canister (Note: Increases with number of functions)
     let _addcycles = deposit_cycles_in_canister(canister_id, 300_000_000_000)
         .await
         .unwrap();
 
     let mut wasm_module: Vec<u8> = Vec::new();
 
-    // to retrive wasm module stored in stable memory
     with_state(|state| match state.wasm_module.get(&0) {
         Some(val) => {
             wasm_module = val.wasm;
