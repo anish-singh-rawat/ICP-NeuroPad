@@ -35,6 +35,10 @@ interface FormData {
   launchType: "genesis" | "standard" | "";
   agentName: string;
   agentOverview: string;
+  tokenName: string;
+  tokenSymbol: string;
+  totalSupply: string;
+  minimumCap: string;
   tokenomicsProposal: string;
   launchDate: string;
   category: string;
