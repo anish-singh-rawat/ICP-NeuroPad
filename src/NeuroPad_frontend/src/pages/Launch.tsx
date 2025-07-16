@@ -957,7 +957,7 @@ export default function Launch() {
                     >
                       Previous
                     </Button>
-                    {currentStep < 4 && (
+                    {currentStep < 5 && (
                       <Button
                         onClick={nextStep}
                         disabled={!isStepValid(currentStep)}
