@@ -1,5 +1,5 @@
 // use std::collections::BTreeMap;
-use crate::{with_state, Analytics, DaoDetails, DaoInput, Pagination};
+use crate::{with_state, AgentDetails, AgentInput, Pagination};
 use candid::{Nat, Principal};
 use ic_cdk::{api, update};
 use icrc_ledger_types::{
@@ -10,54 +10,42 @@ use icrc_ledger_types::{
 use crate::guards::*;
 use ic_cdk::query;
 
-use super::create_dao;
+use super::create_agent;
 
 #[query(guard = prevent_anonymous)]
-fn get_all_dao_pagination(page_data: Pagination) -> Vec<DaoDetails> {
-    let mut daos: Vec<DaoDetails> = Vec::new();
+fn get_all_agent_pagination(page_data: Pagination) -> Vec<AgentDetails> {
+    let mut agents: Vec<AgentDetails> = Vec::new();
     with_state(|state| {
-        for y in state.dao_details.iter() {
-            daos.push(y.1);
+        for y in state.agent_details.iter() {
+            agents.push(y.1);
         }
     });
-    let ending = daos.len();
+    let ending = agents.len();
     if ending == 0 {
-        return daos;
+        return agents;
     }
     let start = page_data.start as usize;
     let end = page_data.end as usize;
     if start < ending {
         let end = end.min(ending);
-        return daos[start..end].to_vec();
+        return agents[start..end].to_vec();
     }
     Vec::new()
-    // daos
 }
 
 
 
 #[query(guard = prevent_anonymous)]
-fn get_all_dao() -> Vec<DaoDetails> {
-    let mut daos: Vec<DaoDetails> = Vec::new();
+fn get_all_agent() -> Vec<AgentDetails> {
+    let mut agents: Vec<AgentDetails> = Vec::new();
     with_state(|state| {
-        for y in state.dao_details.iter() {
-            daos.push(y.1);
+        for y in state.agent_details.iter() {
+            agents.push(y.1);
         }
     });
-    return  daos;
+    return  agents;
 }
 
-#[query]
-fn get_analytics() -> Result<Analytics, String> {
-    with_state(|state| {
-        let data = state.analytics_content.get(&0);
-
-        match data {
-            Some(res) => Ok(res),
-            None => Err("data not found !!!!!".to_string()),
-        }
-    })
-}
 
 // ledger handlers
 async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, String> {
@@ -97,14 +85,14 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
 }
 
 #[update(guard = prevent_anonymous)]
-async fn make_payment_and_create_dao(dao_details:DaoInput)->Result<String, String> {
+async fn make_payment_and_create_agent(agent_details:AgentInput)->Result<String, String> {
     let required_balance: Nat = Nat::from(10_000_000u64);
     let result: Result<Nat, String> = transfer(required_balance, api::caller()).await;
     match result {
         Err(error) => Err(error),
         Ok(_) => {
-            let dao_response: Result<String, String> = create_dao(dao_details).await;
-            match dao_response {
+            let agent_response: Result<String, String> = create_agent(agent_details).await;
+            match agent_response {
                 Err(error) => Err(error),
                 Ok(response) => Ok(response),
             }
@@ -112,22 +100,17 @@ async fn make_payment_and_create_dao(dao_details:DaoInput)->Result<String, Strin
     }
 }
 
-#[query]
-fn get_cycles() -> u64 {
-    api::canister_balance()
-}
-
 #[query(guard = prevent_anonymous)]
-fn search_dao(dao_name: String) -> Vec<DaoDetails> {
-    let mut daos: Vec<DaoDetails> = Vec::new();
+fn search_agent(agent_name: String) -> Vec<AgentDetails> {
+    let mut agents: Vec<AgentDetails> = Vec::new();
 
     with_state(|state| {
-        for y in state.dao_details.iter() {
-            if y.1.dao_name.contains(&dao_name) {
-                daos.push(y.1.clone())
+        for y in state.agent_details.iter() {
+            if y.1.agent_name.contains(&agent_name) {
+                agents.push(y.1.clone())
             }
         }
 
-        daos
+        agents
     })
 }

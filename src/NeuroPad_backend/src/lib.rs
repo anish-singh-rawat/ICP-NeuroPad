@@ -7,10 +7,8 @@ pub mod routes;
 mod state_handler;
 use state_handler::State;
 mod memory;
-use candid::Principal;
 pub use functions::*;
 use memory::Memory;
-use icrc_ledger_types::icrc1::transfer::BlockIndex;
 pub mod utils;
 
 use types::*;
@@ -35,7 +33,7 @@ async fn init(args: InitialArgs) {
                 0,
                 CanisterData {
                     ic_asset_canister: args.ic_asset_canister_id,
-                    dao_canister: args.dao_canister_id,
+                    agent_canister: args.agent_canister_id,
                     paymeny_recipient: args.payment_recipient,
                 },
             );
@@ -51,13 +49,13 @@ async fn init(args: InitialArgs) {
     });
 
     with_state(|state| {
-        let dao_wasm_module: Vec<u8> =
+        let agent_wasm_module: Vec<u8> =
             include_bytes!("../../../.dfx/local/canisters/agent_canister/agent_canister.wasm").to_vec();
 
         state.borrow_mut().wasm_module.insert(
             0,
             WasmArgs {
-                wasm: dao_wasm_module,
+                wasm: agent_wasm_module,
             },
         );
 

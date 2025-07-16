@@ -8,11 +8,6 @@ type ReturnResult = Result<u32, String>;
 // upload image
 #[update(guard = prevent_anonymous)] // temp
 pub async fn upload_image(image_data: ImageData) -> Result<String, String> {
-    // dao canister id
-    // with_state(|state|)
-    // let canister_id = with_state(|state| {
-    //     state.get_canister_ids()
-    // })?;
     let canister_id = with_state(|state| state.canister_data.get(&0));
 
     let canister_id = match canister_id {

@@ -53,7 +53,7 @@ PRO=$(dfx --identity minter identity get-principal) # rmehg-adw5r-6trpq-epk4r-ty
 Anish=$(dfx --identity Anish identity get-principal)  # yxtej-lmfuu-rp3yv-xzu2h-6q43c-7iast-yiwff-z552q-6ugas-pyd6b-fae
 
 TOKEN_SYMBOL=TOK
-TOKEN_NAME="DAOTOKEN"
+TOKEN_NAME="AGENT_TOKEN"
 TRANSFER_FEE=1000
 PRE_MINTED_TOKENS=100000000000
 DIFFERENT=20000000
@@ -86,8 +86,8 @@ NEUROPAD_BACKEND_ID=$(dfx canister id NeuroPad_backend)
 
 
 dfx deploy agent_canister --argument "(record {
-    daohouse_canister_id = principal \"${NEUROPAD_BACKEND_ID}\";
-    dao_name = \"Sample DAO\";
+    parent_agent_canister_id = principal \"${NEUROPAD_BACKEND_ID}\";
+    agent_name = \"Sample AGENT\";
     token_symbol = \"BUNNU\";
     token_supply = 12;
     purpose = \"To manage community projects\";
@@ -98,41 +98,12 @@ dfx deploy agent_canister --argument "(record {
     };
     tokenissuer = \"sample_token_issuer\";
     linksandsocials = vec {
-        \"https://twitter.com/sampledao\";
-        \"https://discord.gg/sampledao\";
+        \"https://twitter.com/sampleagent\";
+        \"https://discord.gg/sampleagent\";
     };
     required_votes = 100;
     image_id = \"1\";
     image_canister = principal \"aaaaa-aa\";
-    members_permissions = vec {
-        variant { AddMemberToGroupProposal };
-        variant { Polls };
-        variant { TokenTransfer };
-    };
-    proposal_entry = vec {
-        record {
-            place_name = \"Council\";
-            min_required_thredshold = 53;
-        };
-        record {
-            place_name = \"Example Group\";
-            min_required_thredshold = 94;
-        };
-    };
-
-    dao_groups = vec {
-        record {
-            group_name = \"Example Group\";
-            group_members = vec { principal \"yxtej-lmfuu-rp3yv-xzu2h-6q43c-7iast-yiwff-z552q-6ugas-pyd6b-fae\" };
-            group_permissions = vec {
-              variant { AddMemberToGroupProposal };
-              variant { Polls };
-              variant { TokenTransfer };
-            };
-            quorem = 75;
-        };
-    };
-    ask_to_join_dao = true;
 })"
 
 
@@ -140,9 +111,10 @@ dfx deploy agent_canister --argument "(record {
 dfx deploy NeuroPad_backend --argument "(record { payment_recipient = principal \"${RECIEVER}\"; ic_asset_canister_id = principal \"${ASSET_CANISTER_ID}\"; agent_canister_id = principal \"${AGENT_CANISTER_ID}\"; })"
 
  dfx deploy ic_asset_handler
+ 
  dfx deploy internet_identity
- dfx deploy NeuroPad_backend
-dfx deploy NeuroPad_frontend
+ 
+ dfx deploy NeuroPad_frontend
 # dfx deploy
 
 

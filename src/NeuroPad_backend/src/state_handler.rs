@@ -1,6 +1,6 @@
 // use std::collections::HashMap;
 use crate::types::{PostInfo, UserProfile};
-use crate::{Analytics, CanisterData, DaoDetails, Memory, ProposalValueStore, WasmArgs};
+use crate::{Analytics, CanisterData, AgentDetails, Memory, ProposalValueStore, WasmArgs};
 use candid::Principal;
 use ic_stable_structures::StableBTreeMap;
 // use std::collections::BTreeMap;
@@ -10,7 +10,7 @@ pub struct State {
 
     pub post_detail: StableBTreeMap<String, PostInfo, Memory>,
 
-    pub dao_details: StableBTreeMap<Principal, DaoDetails, Memory>,
+    pub agent_details: StableBTreeMap<Principal, AgentDetails, Memory>,
 
     pub analytics_content: StableBTreeMap<u64, Analytics, Memory>,
 
@@ -31,12 +31,12 @@ impl State {
         Self {
             user_profile: init_file_contents(),
             post_detail: post_file_contents(),
-            dao_details: dao_file_contents(),
+            agent_details: agent_file_contents(),
             analytics_content: analytics_content(),
             wasm_module: init_wasm_module(),
             canister_ids : init_canister_ids(),
             ledger_wasm: vec![],
-            canister_data: init_canister_data(), // ..Default::default()
+            canister_data: init_canister_data(),
             proposal_store: init_proposal_state(),
         }
     }
@@ -50,8 +50,8 @@ fn post_file_contents() -> StableBTreeMap<String, PostInfo, Memory> {
     StableBTreeMap::init(crate::memory::get_user_memory())
 }
 
-fn dao_file_contents() -> StableBTreeMap<Principal, DaoDetails, Memory> {
-    StableBTreeMap::init(crate::memory::get_dao_memory())
+fn agent_file_contents() -> StableBTreeMap<Principal, AgentDetails, Memory> {
+    StableBTreeMap::init(crate::memory::get_agent_memory())
 }
 fn analytics_content() -> StableBTreeMap<u64, Analytics, Memory> {
     StableBTreeMap::init(crate::memory::get_analytics_memory())
@@ -70,7 +70,7 @@ fn init_canister_data() -> StableBTreeMap<u8, CanisterData, Memory> {
 }
 
 fn init_proposal_state() -> StableBTreeMap<String, ProposalValueStore, Memory> {
-    StableBTreeMap::init(crate::memory::get_proposal_memory())
+    StableBTreeMap::init(crate::memory::get_token_stack_memory())
 }
 
 // fn ledger_wasm_module() ->

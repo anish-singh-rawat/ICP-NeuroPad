@@ -1,19 +1,17 @@
 use std::borrow::Borrow;
-use crate::routes::{create_dao_canister, create_new_ledger_canister, upload_image};
-use crate::types::CanisterIdRecord;
-use crate::types::{DaoInput, Profileinput, UserProfile};
+use crate::routes::{create_agent_canister, create_new_ledger_canister, upload_image};
+use crate::types::{AgentInput, Profileinput, UserProfile};
 use crate::{
-    guards::*, Account, ArchiveOptions, CanisterData,
+    guards::*, Account, ArchiveOptions,
     FeatureFlags, InitArgs, LedgerArg, LedgerCanisterId, MinimalProfileinput,
 };
-use crate::{routes, with_state, DaoDetails, ImageData};
+use crate::{routes, with_state, AgentDetails, ImageData};
 use candid::{Nat, Principal};
 use ic_cdk::api;
 use ic_cdk::{query, update};
 
 use super::canister_functions::call_inter_canister;
 use super::ledger_functions::create_ledger_canister;
-use super::reverse_canister_creation;
 
 #[update(guard=prevent_anonymous)]
 async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
@@ -59,7 +57,7 @@ async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> 
         email_id: profile.email_id,
         profile_img: image_id,
         username: profile.name,
-        dao_ids: Vec::new(),
+        agent_ids: Vec::new(),
         post_count: 0,
         post_id: Vec::new(),
         description: "".to_string(),
@@ -69,7 +67,7 @@ async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> 
         telegram: "".to_string(),
         website: "".to_string(),
         image_canister: asset_canister_id,
-        join_dao :  Vec::new(),
+        join_agent :  Vec::new(),
         submitted_proposals : 0,
     };
 
@@ -163,13 +161,8 @@ async fn update_profile(
     // with_state(|state| routes::update_profile(state, profile.clone()))
 }
 
-#[update(guard = prevent_anonymous)]
-async fn delete_profile() -> Result<(), String> {
-    with_state(|state| routes::delete_profile(state))
-}
-
 #[update]
-pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
+pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     let principal_id = ic_cdk::api::caller();
     let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
 
@@ -178,23 +171,17 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
         None => return Err(String::from(crate::utils::USER_DOES_NOT_EXIST)),
     };
 
-    // to create dao canister
-    let dao_canister_id = create_dao_canister(dao_detail.clone())
+    let agent_canister_id = create_agent_canister(agent_detail.clone())
         .await
-        .map_err(|err| format!("{} {}", crate::utils::CREATE_DAO_CANISTER_FAIL, err))?;
+        .map_err(|err| format!("{} {}", crate::utils::CREATE_AGENT_CANISTER_FAIL, err))?;
 
     // to create ledger canister
-    let ledger_canister_id = create_new_ledger_canister(dao_detail.clone(), dao_canister_id).await;
+    let ledger_canister_id = create_new_ledger_canister(agent_detail.clone(), agent_canister_id).await;
 
     let res = match ledger_canister_id {
         Ok(val) => Ok(val),
 
         Err(err) => {
-            let _ = reverse_canister_creation(CanisterIdRecord {
-                canister_id: dao_canister_id,
-            })
-            .await;
-
             Err(format!("{} {}", crate::utils::CREATE_LEDGER_FAILURE, err))
         }
     }
@@ -202,72 +189,59 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
 
     let ledger_canister_id = res.map_err(|err| format!("Error in ledger canister id: {}", err))?;
 
-    let dao_details: DaoDetails = DaoDetails {
-        dao_canister_id: dao_canister_id.clone(),
-        dao_name: dao_detail.dao_name,
-        dao_desc: dao_detail.purpose,
-        dao_associated_ledger: ledger_canister_id,
+    let agent_details = AgentDetails {
+        agent_canister_id: agent_canister_id.clone(),
+        agent_name: agent_detail.agent_name,
+        agnet_desc: agent_detail.agent_desc,
+        agent_associated_ledger : agent_detail.agent_associated_ledger,
     };
 
-    // storing dao details for DAO listings
     with_state(|state| {
         state
-            .dao_details
-            .insert(dao_canister_id.clone(), dao_details)
+            .agent_details
+            .insert(agent_canister_id.clone(), agent_details)
     });
 
-    user_profile_detail.dao_ids.push(dao_canister_id.clone());
+    user_profile_detail.agent_ids.push(agent_canister_id.clone());
 
-    // adding ledger canister in newly created DAO canister
     match call_inter_canister::<LedgerCanisterId, ()>(
         "add_ledger_canister_id",
         LedgerCanisterId {
             id: ledger_canister_id,
         },
-        dao_canister_id,
+        agent_canister_id,
     )
     .await
     {
         Ok(()) => {}
         Err(err) => {
-            //   delete created canisters
-            let _ = reverse_canister_creation(CanisterIdRecord {
-                canister_id: dao_canister_id,
-            })
-            .await;
-
-            let _ = reverse_canister_creation(CanisterIdRecord {
-                canister_id: ledger_canister_id,
-            })
-            .await;
-
             return Err(format!("{}{}", crate::utils::INTER_CANISTER_FAILED, err));
         }
     }
 
     with_state(|state| {
         let mut analytics = state.analytics_content.borrow().get(&0).unwrap();
-        analytics.dao_counts += 1;
+        analytics.agent_counts += 1;
         state.analytics_content.insert(0, analytics);
         state.user_profile.insert(principal_id, user_profile_detail)
     });
 
     with_state(|state| {
-        let new_canister_id = dao_canister_id.clone();
+        let new_canister_id = agent_canister_id.clone();
         state.canister_ids.insert(new_canister_id, new_canister_id)
     });
 
     with_state(|state| {
         if let Some(profile) = state.user_profile.get(&api::caller()) {
             let mut updated_profile = profile.clone();
-            updated_profile.join_dao.push(dao_canister_id.clone());
+            updated_profile.join_agent.push(agent_canister_id.clone());
             state.user_profile.insert(principal_id, updated_profile);
         }
     });
 
     Ok(format!(
-        "Dao created, canister id: {} ledger id: {}",
-        dao_canister_id.to_string(),
+        "Agent created, canister id: {} ledger id: {}",
+        agent_canister_id.to_string(),
         ledger_canister_id.to_string()
     ))
 }
@@ -284,32 +258,13 @@ fn check_user_existance() -> Result<String, String> {
     })
 }
 
-#[update(guard = prevent_anonymous)]
-fn get_profile_by_id(id: Principal) -> Result<UserProfile, String> {
-    let user_submitted_proposals : u64 = with_state(|state| {
-        state.proposal_store
-            .iter()
-            .filter(|(_key, proposal)| proposal.created_by == id)
-            .count()
-    }).try_into().unwrap();
-
-    with_state(|state| match state.user_profile.get(&id) {
-        Some(profile) => {
-            let mut user_profile: UserProfile = profile.clone();
-            user_profile.submitted_proposals = user_submitted_proposals;
-            Ok(user_profile)
-        },
-        None => Err(String::from(crate::utils::USER_DOES_NOT_EXIST)),
-    })
-}
-
 // #[update]
 pub async fn create_ledger(
     total_tokens: Nat,
     token_name: String,
     token_symbol: String,
     members: Vec<Principal>,
-    dao_canister_id: Principal,
+    agent_canister_id: Principal,
 ) -> Result<Principal, String> {
     let tokens_per_user = total_tokens.clone() / members.len();
 
@@ -333,33 +288,15 @@ pub async fn create_ledger(
         },
         transfer_fee: Nat::from(0 as u32),
         metadata: vec![],
-        // initial_balances: accounts,
         initial_balances :  vec![(
             Account {
-                owner: dao_canister_id,
+                owner: agent_canister_id,
                 subaccount: None,
             },
             total_tokens,
         )],
-        // initial_balances: vec![
-        //     // (
-        //     //     Account {
-        //     //         owner: api::caller(),
-        //     //         subaccount: None,
-        //     //     },
-        //     //     Nat::from(1000000 as u32),
-        //     // ),
-        //     // (
-        //     //     Account {
-        //     //         owner: acc,
-        //     //         subaccount: None,
-        //     //     },
-        //     //     Nat::from(290999 as u32),
-        //     // ),
-        // ],
         archive_options: ArchiveOptions {
-            controller_id: api::caller(), // TODO: FIX THIS, THIS NEED TO BE DAO CANISTER ID
-            // controller_id: Principal::from_text(dao_canister_id).map_err(|err| err.to_string())?,
+            controller_id: api::caller(),
             cycles_for_archive_creation: None,
             max_message_size_bytes: None,
             max_transactions_per_response: None,
@@ -379,27 +316,4 @@ pub async fn create_ledger(
     create_ledger_canister(ledger_args).await
 
     // Ok("()".to_string())
-}
-
-// TODO REMOVE THIS
-#[query]
-fn get_canister_meta_data() -> Result<CanisterData, String> {
-    with_state(|state| match state.canister_data.get(&0) {
-        Some(val) => Ok(val),
-        None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
-    })
-    // with_state(|state| state.canister_data)
-}
-
-#[query(guard = prevent_anonymous)]
-async fn check_profile_existence() -> Result<(), String> {
-    let principal_id = api::caller();
-    let profile = with_state(|state| state.user_profile.get(&principal_id));
-
-    if let Some(user_profile) = profile {
-        if !user_profile.email_id.trim().is_empty() {
-            return Err(crate::utils::USER_REGISTERED.to_string());
-        }
-    }
-    Ok(())
 }
