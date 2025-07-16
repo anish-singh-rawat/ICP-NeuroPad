@@ -23,7 +23,6 @@ pub fn with_state<R>(f: impl FnOnce(&mut State) -> R) -> R {
 
 #[init]
 async fn init(args: InitialArgs) {
-    let analytics = Analytics::default();
 
     with_state(|state: &mut State| {
         if let Some(_) = state.canister_data.get(&0) {
@@ -37,12 +36,6 @@ async fn init(args: InitialArgs) {
                     paymeny_recipient: args.payment_recipient,
                 },
             );
-        }
-
-        if let Some(_) = state.analytics_content.get(&0) {
-            ic_cdk::println!("Analytics already available.");
-        } else {
-            state.analytics_content.insert(0, analytics.clone());
         }
 
         ()

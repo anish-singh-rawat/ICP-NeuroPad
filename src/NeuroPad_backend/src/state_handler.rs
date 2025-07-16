@@ -1,6 +1,6 @@
 // use std::collections::HashMap;
 use crate::types::{PostInfo, UserProfile};
-use crate::{Analytics, CanisterData, AgentDetails, Memory, ProposalValueStore, WasmArgs};
+use crate::{ CanisterData, AgentDetails, Memory, ProposalValueStore, WasmArgs};
 use candid::Principal;
 use ic_stable_structures::StableBTreeMap;
 // use std::collections::BTreeMap;
@@ -11,8 +11,6 @@ pub struct State {
     pub post_detail: StableBTreeMap<String, PostInfo, Memory>,
 
     pub agent_details: StableBTreeMap<Principal, AgentDetails, Memory>,
-
-    pub analytics_content: StableBTreeMap<u64, Analytics, Memory>,
 
     pub wasm_module: StableBTreeMap<u64, WasmArgs, Memory>,
 
@@ -32,7 +30,6 @@ impl State {
             user_profile: init_file_contents(),
             post_detail: post_file_contents(),
             agent_details: agent_file_contents(),
-            analytics_content: analytics_content(),
             wasm_module: init_wasm_module(),
             canister_ids : init_canister_ids(),
             ledger_wasm: vec![],
@@ -53,9 +50,6 @@ fn post_file_contents() -> StableBTreeMap<String, PostInfo, Memory> {
 fn agent_file_contents() -> StableBTreeMap<Principal, AgentDetails, Memory> {
     StableBTreeMap::init(crate::memory::get_agent_memory())
 }
-fn analytics_content() -> StableBTreeMap<u64, Analytics, Memory> {
-    StableBTreeMap::init(crate::memory::get_analytics_memory())
-}
 
 fn init_wasm_module() -> StableBTreeMap<u64, WasmArgs, Memory> {
     StableBTreeMap::init(crate::memory::get_wasm_memory())
@@ -72,8 +66,6 @@ fn init_canister_data() -> StableBTreeMap<u8, CanisterData, Memory> {
 fn init_proposal_state() -> StableBTreeMap<String, ProposalValueStore, Memory> {
     StableBTreeMap::init(crate::memory::get_token_stack_memory())
 }
-
-// fn ledger_wasm_module() ->
 
 impl Default for State {
     fn default() -> Self {

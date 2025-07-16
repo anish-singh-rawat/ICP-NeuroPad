@@ -50,19 +50,6 @@ type Profileinput = record {
   telegram : text;
   tag_defines : vec text;
 };
-type ProposalValueStore = record {
-  proposal_expired_at : nat64;
-  minimum_threadsold : nat64;
-  proposal_submitted_at : nat64;
-  agent_members : vec principal;
-  principal_action : principal;
-  created_by : principal;
-  associated_agent_canister_id : principal;
-  proposal_description : text;
-  proposal_id : text;
-  propsal_title : text;
-  required_votes : nat32;
-};
 type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok : UserProfile; Err : text };
 type Result_2 = variant { Ok; Err : text };
@@ -85,13 +72,11 @@ type UserProfile = record {
   tag_defines : vec text;
 };
 service : (InitialArgs) -> {
-  add_proposal : (ProposalValueStore) -> (Result);
   check_user_existance : () -> (Result) query;
   create_agent : (AgentInput) -> (Result);
   create_profile : (MinimalProfileinput) -> (Result);
   get_all_agent : () -> (vec AgentDetails) query;
   get_all_agent_pagination : (Pagination) -> (vec AgentDetails) query;
-  get_proposals : (Pagination) -> (vec ProposalValueStore) query;
   get_user_profile : () -> (Result_1) query;
   make_payment_and_create_agent : (AgentInput) -> (Result);
   search_agent : (text) -> (vec AgentDetails) query;

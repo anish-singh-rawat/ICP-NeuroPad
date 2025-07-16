@@ -5,7 +5,6 @@ use std::cell::RefCell;
 const POST_DATA: MemoryId = MemoryId::new(0);
 const USER_DATA: MemoryId = MemoryId::new(1);
 const AGENT_DATA: MemoryId = MemoryId::new(2);
-const ANALYTICS_DATA: MemoryId = MemoryId::new(3);
 const WASM_DATA: MemoryId = MemoryId::new(4);
 const CANISTER_META_DATA: MemoryId = MemoryId::new(5);
 const CANISTER_IDS : MemoryId = MemoryId::new(6);
@@ -31,9 +30,6 @@ pub fn get_agent_memory() -> Memory {
     MEMORY_MANAGER.with(|m| m.borrow().get(AGENT_DATA))
 }
 
-pub fn get_analytics_memory() -> Memory {
-    MEMORY_MANAGER.with(|m| m.borrow().get(ANALYTICS_DATA))
-}
 pub fn get_wasm_memory() -> Memory {
     MEMORY_MANAGER.with(|m| m.borrow().get(WASM_DATA))
 }

@@ -672,15 +672,6 @@ pub struct LedgerCanisterId {
     pub id: Principal,
 }
 
-
-#[derive(CandidType, Clone, Serialize, Debug, Deserialize, Default)]
-pub struct Analytics {
-    pub members_count: u64,
-    pub proposals_count: u64,
-    pub agent_counts: u64,
-    pub post_count: u64,
-}
-
 #[derive(CandidType, Serialize, Deserialize)]
 pub struct Pagination {
     pub start: u32,
@@ -694,7 +685,7 @@ pub struct WasmArgs {
 
 #[derive(CandidType, Deserialize, Debug)]
 pub struct InitialArgs {
-    pub payment_recipient: Principal, // payment recipient principal address
+    pub payment_recipient: Principal, 
     pub ic_asset_canister_id: Principal,
     pub agent_canister_id: Principal,
 }
@@ -781,8 +772,6 @@ pub struct ProposalValueStore {
     pub agent_members: Vec<Principal>,
     pub minimum_threadsold : u64,
 }
-
-const MAX_VALUE_SIZE_ANALYTICS: u32 = 300;
 const MAX_VALUE_SIZE_CANISTER_DATA: u32 = 600;
 
 impl Storable for UserProfile {
@@ -793,14 +782,9 @@ impl Storable for UserProfile {
     fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
         Decode!(bytes.as_ref(), Self).unwrap()
     }
-
-    // IF MEMORY ERROR UNCOMMENT BELOW LINE
+    
     const BOUND: Bound = Bound::Unbounded;
 
-    // const BOUND: Bound = Bound::Bounded {
-    //     max_size: MAX_VALUE_SIZE,
-    //     is_fixed_size: false,
-    // };
 }
 
 impl Storable for PostInfo {
@@ -825,20 +809,6 @@ impl Storable for AgentDetails {
     }
 
     const BOUND: Bound = Bound::Unbounded;
-}
-
-impl Storable for Analytics {
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(Encode!(self).unwrap())
-    }
-
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Decode!(bytes.as_ref(), Self).unwrap()
-    }
-    const BOUND: Bound = Bound::Bounded {
-        max_size: MAX_VALUE_SIZE_ANALYTICS,
-        is_fixed_size: false,
-    };
 }
 
 impl Storable for WasmArgs {

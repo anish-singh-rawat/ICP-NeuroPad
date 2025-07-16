@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 use crate::routes::{create_agent_canister, create_new_ledger_canister, upload_image};
 use crate::types::{AgentInput, Profileinput, UserProfile};
 use crate::{
@@ -71,12 +70,8 @@ async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> 
         submitted_proposals : 0,
     };
 
-    // with_state(|state| routes::create_new_profile(state, profile.clone()))
 
     with_state(|state| -> Result<String, String> {
-        let mut analytics = state.analytics_content.borrow().get(&0).unwrap();
-        analytics.members_count += 1;
-        state.analytics_content.insert(0, analytics);
         state.user_profile.insert(principal_id, new_profile);
         Ok(String::from(crate::utils::PROFILE_UPDATE_SUCCESS))
     })
@@ -218,13 +213,6 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
             return Err(format!("{}{}", crate::utils::INTER_CANISTER_FAILED, err));
         }
     }
-
-    with_state(|state| {
-        let mut analytics = state.analytics_content.borrow().get(&0).unwrap();
-        analytics.agent_counts += 1;
-        state.analytics_content.insert(0, analytics);
-        state.user_profile.insert(principal_id, user_profile_detail)
-    });
 
     with_state(|state| {
         let new_canister_id = agent_canister_id.clone();
