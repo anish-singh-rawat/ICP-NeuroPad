@@ -149,8 +149,15 @@ export default function Launch() {
           formData.agentName && formData.agentOverview && formData.category
         );
       case 3:
-        return formData.tokenomicsProposal;
+        return (
+          formData.tokenName &&
+          formData.tokenSymbol &&
+          formData.totalSupply &&
+          formData.minimumCap
+        );
       case 4:
+        return formData.tokenomicsProposal;
+      case 5:
         return formData.launchDate && termsAccepted;
       default:
         return false;
