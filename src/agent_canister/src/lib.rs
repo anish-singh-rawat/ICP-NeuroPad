@@ -1,5 +1,4 @@
 mod types;
-use functions::icrc_get_balance;
 use ic_cdk::{export_candid, init};
 use std::{cell::RefCell, collections::HashSet};
 pub mod proposal_route;
@@ -14,7 +13,6 @@ use candid::Principal;
 use icrc_ledger_types::icrc1::transfer::BlockIndex;
 use types::*;
 mod utils;
-use candid::Nat;
 
 
 thread_local! {

@@ -1,7 +1,6 @@
 mod proposal_functions;
 use candid::{CandidType, Principal};
 use ic_cdk::api::call::{CallResult, RejectionCode};
-mod dao_functions;
 
 mod ledger_functions;
 pub use ledger_functions::*;
