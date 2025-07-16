@@ -151,7 +151,7 @@ export default function HeroSection() {
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ delay: 2, duration: 0.3 }}
+						transition={{ delay: 0, duration: 0.3 }}
 						className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto pt-16"
 					>
 						{stats.map((stat, index) => {
