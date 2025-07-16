@@ -583,8 +583,124 @@ export default function Launch() {
                     </div>
                   )}
 
-                  {/* Step 3: Tokenomics Design */}
+                  {/* Step 3: Tokenomics Configuration */}
                   {currentStep === 3 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">
+                          Tokenomics Configuration
+                        </h2>
+                        <p className="text-muted-foreground">
+                          Configure your agent's token economics and funding
+                          goals
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="tokenName">Token Name *</Label>
+                            <Input
+                              id="tokenName"
+                              placeholder="e.g., DataMiner Token"
+                              value={formData.tokenName}
+                              onChange={(e) =>
+                                updateFormData("tokenName", e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="tokenSymbol">Token Symbol *</Label>
+                            <Input
+                              id="tokenSymbol"
+                              placeholder="e.g., DMT"
+                              value={formData.tokenSymbol}
+                              onChange={(e) =>
+                                updateFormData(
+                                  "tokenSymbol",
+                                  e.target.value.toUpperCase(),
+                                )
+                              }
+                              className="mt-1"
+                              maxLength={5}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="totalSupply">Total Supply *</Label>
+                            <Input
+                              id="totalSupply"
+                              type="number"
+                              placeholder="e.g., 1,000,000"
+                              value={formData.totalSupply}
+                              onChange={(e) =>
+                                updateFormData("totalSupply", e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="minimumCap">
+                              Minimum Cap (NeuroPad) *
+                            </Label>
+                            <Input
+                              id="minimumCap"
+                              type="number"
+                              placeholder="e.g., 50,000"
+                              value={formData.minimumCap}
+                              onChange={(e) =>
+                                updateFormData("minimumCap", e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
+                              💡 Note:
+                            </h4>
+                            <p className="text-sm text-blue-700 dark:text-blue-400">
+                              The minimum cap must be reached within 24 hours of
+                              launch. If it's not met, all deposits will be
+                              refunded automatically.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                          <Clock className="w-5 h-5 text-amber-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-amber-800 dark:text-amber-300 mb-2">
+                              🕒 24-Hour Launch Window Rule
+                            </h4>
+                            <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                              Your agent token will only be created if the
+                              minimum cap is reached within 24 hours of launch.
+                            </p>
+                            <p className="text-sm text-amber-700 dark:text-amber-400">
+                              Otherwise, no token gets minted and users get
+                              their funds back.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 4: Tokenomics Design */}
+                  {currentStep === 4 && (
                     <div className="space-y-6">
                       <div>
                         <h2 className="text-2xl font-bold mb-2">
