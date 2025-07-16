@@ -781,8 +781,8 @@ export default function Launch() {
                     </div>
                   )}
 
-                  {/* Step 4: Schedule & Launch */}
-                  {currentStep === 4 && (
+                  {/* Step 5: Schedule & Launch */}
+                  {currentStep === 5 && (
                     <div className="space-y-6">
                       <div>
                         <h2 className="text-2xl font-bold mb-2">
