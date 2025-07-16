@@ -97,7 +97,7 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
           className="relative w-full max-w-md mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div className="flex items-center justify-between p-6  border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 Connect to NeuroPad
@@ -264,26 +264,6 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
                           className="mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                         />
                       </div>
-
-                      <div>
-                        <Label
-                          htmlFor="email"
-                          className="flex items-center space-x-2 text-gray-700 dark:text-gray-300"
-                        >
-                          <Mail className="w-4 h-4" />
-                          <span>Email Address *</span>
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="john@example.com"
-                          value={formData.email}
-                          onChange={(e) =>
-                            updateFormData("email", e.target.value)
-                          }
-                          className="mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                        />
-                      </div>
                     </div>
 
                     {/* Optional Fields */}
@@ -328,25 +308,6 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
                             value={formData.twitter}
                             onChange={(e) =>
                               updateFormData("twitter", e.target.value)
-                            }
-                            className="mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                          />
-                        </div>
-
-                        <div>
-                          <Label
-                            htmlFor="github"
-                            className="flex items-center space-x-2 text-gray-700 dark:text-gray-300"
-                          >
-                            <Github className="w-4 h-4" />
-                            <span>GitHub</span>
-                          </Label>
-                          <Input
-                            id="github"
-                            placeholder="username"
-                            value={formData.github}
-                            onChange={(e) =>
-                              updateFormData("github", e.target.value)
                             }
                             className="mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                           />
