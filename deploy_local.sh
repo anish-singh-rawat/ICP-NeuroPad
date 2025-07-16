@@ -87,7 +87,7 @@ NEUROPAD_BACKEND_ID=$(dfx canister id NeuroPad_backend)
 
 dfx deploy agent_canister --argument "(record {
     parent_agent_canister_id = principal \"${NEUROPAD_BACKEND_ID}\";
-    dao_name = \"Sample DAO\";
+    agent_name = \"Sample DAO\";
     token_symbol = \"BUNNU\";
     token_supply = 12;
     purpose = \"To manage community projects\";

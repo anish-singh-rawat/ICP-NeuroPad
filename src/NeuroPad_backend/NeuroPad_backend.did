@@ -1,31 +1,23 @@
-type DaoDetails = record {
-  dao_associated_ledger : principal;
-  dao_desc : text;
-  dao_name : text;
+type AgentDetails = record {
+  agnet_desc : text;
   agent_canister_id : principal;
+  agent_name : text;
+  agent_associated_ledger : principal;
 };
-type DaoGroup = record {
-  group_members : vec principal;
-  quorem : nat8;
-  group_name : text;
-  group_permissions : vec ProposalType;
-};
-type DaoInput = record {
+type AgentInput = record {
   members : vec principal;
   image_title : text;
   token_symbol : text;
   linksandsocials : vec text;
   image_content : blob;
-  dao_groups : vec DaoGroup;
-  dao_name : text;
+  agent_desc : text;
   image_id : text;
-  members_permissions : vec ProposalType;
+  agent_name : text;
+  agent_associated_ledger : principal;
   link_of_document : text;
   image_content_type : text;
-  ask_to_join_dao : bool;
   cool_down_period : nat32;
   token_name : text;
-  proposal_entry : vec ProposalPlace;
   purpose : text;
   token_supply : nat32;
   required_votes : nat32;
@@ -58,10 +50,6 @@ type Profileinput = record {
   telegram : text;
   tag_defines : vec text;
 };
-type ProposalPlace = record {
-  place_name : text;
-  min_required_thredshold : nat64;
-};
 type ProposalType = variant {
   RemoveMemberToDaoProposal;
   ChangeDaoConfig;
@@ -93,8 +81,7 @@ type ProposalValueStore = record {
 };
 type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok : UserProfile; Err : text };
-type Result_2 = variant { Ok : nat; Err : text };
-type Result_3 = variant { Ok; Err : text };
+type Result_2 = variant { Ok; Err : text };
 type UserProfile = record {
   image_canister : principal;
   post_id : vec text;
@@ -116,16 +103,15 @@ type UserProfile = record {
 service : (InitialArgs) -> {
   add_proposal : (ProposalValueStore) -> (Result);
   check_user_existance : () -> (Result) query;
-  create_dao : (DaoInput) -> (Result);
+  create_dao : (AgentInput) -> (Result);
   create_profile : (MinimalProfileinput) -> (Result);
-  get_all_dao : () -> (vec DaoDetails) query;
-  get_all_dao_pagination : (Pagination) -> (vec DaoDetails) query;
+  get_all_agent : () -> (vec AgentDetails) query;
+  get_all_agent_pagination : (Pagination) -> (vec AgentDetails) query;
   get_proposals : (Pagination) -> (vec ProposalValueStore) query;
   get_user_profile : () -> (Result_1) query;
-  make_payment_and_create_dao : (DaoInput) -> (Result);
-  proposal_to_mint_new_dao_tokens : (principal, nat64) -> (Result_2);
-  search_dao : (text) -> (vec DaoDetails) query;
-  store_join_dao : (principal, principal) -> (Result_3);
-  update_profile : (Profileinput) -> (Result_3);
+  make_payment_and_create_agent : (AgentInput) -> (Result);
+  search_agent : (text) -> (vec AgentDetails) query;
+  store_join_dao : (principal, principal) -> (Result_2);
+  update_profile : (Profileinput) -> (Result_2);
   upload_image : (ImageData) -> (Result);
 }

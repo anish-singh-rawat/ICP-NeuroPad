@@ -1,6 +1,6 @@
 // use std::collections::HashMap;
 use crate::types::{PostInfo, UserProfile};
-use crate::{Analytics, CanisterData, DaoDetails, Memory, ProposalValueStore, WasmArgs};
+use crate::{Analytics, CanisterData, AgentDetails, Memory, ProposalValueStore, WasmArgs};
 use candid::Principal;
 use ic_stable_structures::StableBTreeMap;
 // use std::collections::BTreeMap;
@@ -10,7 +10,7 @@ pub struct State {
 
     pub post_detail: StableBTreeMap<String, PostInfo, Memory>,
 
-    pub dao_details: StableBTreeMap<Principal, DaoDetails, Memory>,
+    pub dao_details: StableBTreeMap<Principal, AgentDetails, Memory>,
 
     pub analytics_content: StableBTreeMap<u64, Analytics, Memory>,
 
@@ -50,7 +50,7 @@ fn post_file_contents() -> StableBTreeMap<String, PostInfo, Memory> {
     StableBTreeMap::init(crate::memory::get_user_memory())
 }
 
-fn agent_file_contents() -> StableBTreeMap<Principal, DaoDetails, Memory> {
+fn agent_file_contents() -> StableBTreeMap<Principal, AgentDetails, Memory> {
     StableBTreeMap::init(crate::memory::get_agent_memory())
 }
 fn analytics_content() -> StableBTreeMap<u64, Analytics, Memory> {

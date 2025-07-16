@@ -1,11 +1,5 @@
 use candid::{encode_one, Principal};
-use ic_cdk::{
-    api::{self},
-    update,
-};
-use icrc_ledger_types::icrc1::account::Account;
-use icrc_ledger_types::icrc1::transfer::{BlockIndex, TransferArg};
-use crate::guards::guard_child_canister_only;
+use ic_cdk::{api::{self}};
 use crate::{
     CanisterInstallMode, CanisterSettings, CreateCanisterArgument, InstallCodeArgument, LedgerArg,
 };
@@ -62,30 +56,4 @@ pub async fn create_ledger_canister(ledger_args: LedgerArg) -> Result<Principal,
     install_code_in_canister(arg1, wasm_module).await.unwrap();
 
     Ok(canister_id_principal)
-}
-
-#[update(guard = guard_child_canister_only)]
-pub async fn proposal_to_mint_new_dao_tokens(
-    ledger_canister_id: Principal,
-    total_amount: u64,
-) -> Result<BlockIndex, String> {
-    let icrc1_transfer_args = TransferArg {
-        from_subaccount: None,
-        to: Account {
-            owner: api::caller(),
-            subaccount: None,
-        },
-        amount: total_amount.into(),
-        fee: None,
-        memo: None,
-        created_at_time: None,
-    };
-
-    let (result,): (Result<BlockIndex, String>,) =
-        ic_cdk::call(ledger_canister_id, "icrc1_transfer", (icrc1_transfer_args,))
-            .await
-            .map_err(|e| format!("failed to call ledger: {:?}", e))?;
-
-    ic_cdk::println!("result : {:?} ", result);
-    result.map_err(|e| format!("ledger transfer error {:?}", e))
 }

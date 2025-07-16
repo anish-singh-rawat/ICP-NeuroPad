@@ -569,15 +569,15 @@ pub struct ICRC1LedgerInitArgs {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
-pub struct DaoInput {
-    pub dao_name: String,
+pub struct AgentInput {
+    pub agent_name: String,
+    pub agent_desc: String,
     pub purpose: String,
     pub link_of_document: String,
     pub cool_down_period: u32,
     pub members: Vec<Principal>,
     pub linksandsocials: Vec<String>,
     pub required_votes: u32,
-    pub dao_groups: Vec<DaoGroup>,
     pub token_name: String,
     pub token_symbol: String,
     pub token_supply: u32,
@@ -585,41 +585,32 @@ pub struct DaoInput {
     pub image_content: ByteBuf,
     pub image_title: String,
     pub image_content_type: String,
-    pub members_permissions: Vec<ProposalType>,
-    pub proposal_entry : Vec<ProposalPlace>,
-    pub ask_to_join_dao : bool,
+    pub agent_associated_ledger: Principal
 }
 
-#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
+    #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct DaoCanisterInput {
-    pub dao_name: String,
+    pub agent_name: String,
     pub purpose: String,
     pub link_of_document: String,
     pub cool_down_period: u32,
     pub members: Vec<Principal>,
-    // pub tokenissuer: String,
     pub linksandsocials: Vec<String>,
     pub required_votes: u32,
     pub token_symbol: String,
     pub token_supply: u32,
     pub image_id: String,
-    pub members_permissions: Vec<ProposalType>,
     pub image_canister: Principal,
     pub parent_agent_canister_id: Principal,
-    pub proposal_entry : Vec<ProposalPlace>,
-    pub ask_to_join_dao : bool,
     pub all_dao_user : Vec<Principal>,
-    pub(crate) dao_groups: Vec<DaoGroup>,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct DaoDetails {
-    // pub dao_id: Principal,
-    pub dao_name: String,
-    // pub image_id: String,
-    pub dao_desc: String,
+pub struct AgentDetails {
+    pub agent_name: String,
+    pub agnet_desc: String,
     pub agent_canister_id: Principal,
-    pub dao_associated_ledger: Principal,
+    pub agent_associated_ledger: Principal,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
@@ -875,7 +866,7 @@ impl Storable for PostInfo {
     // };
 }
 
-impl Storable for DaoDetails {
+impl Storable for AgentDetails {
     fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(Encode!(self).unwrap())
     }

@@ -1,11 +1,11 @@
 use std::borrow::Borrow;
 use crate::routes::{create_dao_canister, create_new_ledger_canister, upload_image};
-use crate::types::{DaoInput, Profileinput, UserProfile};
+use crate::types::{AgentInput, Profileinput, UserProfile};
 use crate::{
     guards::*, Account, ArchiveOptions,
     FeatureFlags, InitArgs, LedgerArg, LedgerCanisterId, MinimalProfileinput,
 };
-use crate::{routes, with_state, DaoDetails, ImageData};
+use crate::{routes, with_state, AgentDetails, ImageData};
 use candid::{Nat, Principal};
 use ic_cdk::api;
 use ic_cdk::{query, update};
@@ -162,7 +162,7 @@ async fn update_profile(
 }
 
 #[update]
-pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
+pub async fn create_dao(agent_detail: AgentInput) -> Result<String, String> {
     let principal_id = ic_cdk::api::caller();
     let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
 
@@ -172,12 +172,12 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
     };
 
     // to create dao canister
-    let dao_canister_id = create_dao_canister(dao_detail.clone())
+    let dao_canister_id = create_dao_canister(agent_detail.clone())
         .await
         .map_err(|err| format!("{} {}", crate::utils::CREATE_DAO_CANISTER_FAIL, err))?;
 
     // to create ledger canister
-    let ledger_canister_id = create_new_ledger_canister(dao_detail.clone(), dao_canister_id).await;
+    let ledger_canister_id = create_new_ledger_canister(agent_detail.clone(), dao_canister_id).await;
 
     let res = match ledger_canister_id {
         Ok(val) => Ok(val),
@@ -190,11 +190,11 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
 
     let ledger_canister_id = res.map_err(|err| format!("Error in ledger canister id: {}", err))?;
 
-    let dao_details: DaoDetails = DaoDetails {
+    let dao_details = AgentDetails {
         agent_canister_id: dao_canister_id.clone(),
-        dao_name: dao_detail.dao_name,
-        dao_desc: dao_detail.purpose,
-        dao_associated_ledger: ledger_canister_id,
+        agent_name: agent_detail.agent_name,
+        agnet_desc: agent_detail.agent_desc,
+        agent_associated_ledger : agent_detail.agent_associated_ledger,
     };
 
     // storing dao details for DAO listings

@@ -3,22 +3,16 @@ type AgentCreationInput = record {
   members : vec principal;
   token_symbol : text;
   linksandsocials : vec text;
-  dao_groups : vec DaoGroup;
-  dao_name : text;
   image_id : text;
+  agent_name : text;
   parent_agent_canister_id : principal;
-  members_permissions : vec ProposalType;
   link_of_document : text;
-  ask_to_join_dao : bool;
   cool_down_period : nat32;
-  proposal_entry : vec ProposalPlace;
   purpose : text;
   token_supply : nat32;
-  required_votes : nat32;
 };
 type AgentDetails = record {
   image_canister : principal;
-  agnet_name : text;
   members : vec principal;
   proposals_count : nat32;
   token_ledger_id : LedgerCanisterId;
@@ -29,43 +23,14 @@ type AgentDetails = record {
   agent_canister_id : principal;
   proposal_ids : vec text;
   image_id : text;
-  requested_dao_user : vec principal;
-  groups_count : nat64;
-  members_permissions : vec ProposalType;
+  agent_name : text;
   link_of_document : text;
   members_count : nat32;
   total_tokens : nat32;
   cool_down_period : nat32;
-  proposal_entry : vec ProposalPlace;
   purpose : text;
-  required_votes : nat32;
-};
-type DaoGroup = record {
-  group_members : vec principal;
-  quorem : nat8;
-  group_name : text;
-  group_permissions : vec ProposalType;
 };
 type LedgerCanisterId = record { id : principal };
-type ProposalPlace = record {
-  place_name : text;
-  min_required_thredshold : nat64;
-};
-type ProposalType = variant {
-  RemoveMemberToDaoProposal;
-  ChangeDaoConfig;
-  BountyDone;
-  Polls;
-  ChangeDaoPolicy;
-  MintNewTokens;
-  TokenTransfer;
-  AddMemberToDaoProposal;
-  RemoveMemberToGroupProposal;
-  ChangeGroupPermissions;
-  BountyRaised;
-  AddMemberToGroupProposal;
-  GeneralPurpose;
-};
 type Result = variant { Ok : nat; Err : text };
 type TokenTransferArgs = record {
   to : principal;
