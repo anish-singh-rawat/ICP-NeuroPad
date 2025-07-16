@@ -867,6 +867,34 @@ export default function Launch() {
                               </span>
                               <span>{formData.category || "—"}</span>
                             </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Token Symbol:
+                              </span>
+                              <span className="font-medium">
+                                {formData.tokenSymbol || "—"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Total Supply:
+                              </span>
+                              <span>
+                                {formData.totalSupply
+                                  ? `${parseInt(formData.totalSupply).toLocaleString()}`
+                                  : "—"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Minimum Cap:
+                              </span>
+                              <span>
+                                {formData.minimumCap
+                                  ? `${parseInt(formData.minimumCap).toLocaleString()} NPT`
+                                  : "—"}
+                              </span>
+                            </div>
                             {formData.launchType === "genesis" && (
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">
@@ -1111,7 +1139,7 @@ export default function Launch() {
                     to="/community"
                     className="block text-neuro-500 hover:text-neuro-600 transition-colors"
                   >
-                    → Community Support
+                    �� Community Support
                   </Link>
                 </div>
               </motion.div>
