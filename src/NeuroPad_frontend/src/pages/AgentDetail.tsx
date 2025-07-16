@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import { Brain, TrendingUp, Users, Star } from "lucide-react";
 
 export default function AgentDetail() {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import {
   BarChart3,
   Users,
@@ -18,11 +18,11 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import { Progress } from "../components/ui/progress";
+import { cn } from "../lib/utils";
 
 // Mock data for dashboard
 const agents = [
@@ -119,7 +119,7 @@ const agents = [
   },
 ];
 
-const statusConfig = {
+const statusConfig : any = {
   active: {
     label: "Active",
     color: "bg-green-500",

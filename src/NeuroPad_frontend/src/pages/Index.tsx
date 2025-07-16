@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
+import Navbar from "../components/Navbar";
+import HeroSection from "../components/HeroSection";
 import {
   Brain,
   Rocket,
@@ -12,7 +12,7 @@ import {
   Star,
   ArrowUpRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
 
 const features = [

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import { Wallet, CreditCard, ArrowUpDown, Shield } from "lucide-react";
 
 export default function WalletPage() {
