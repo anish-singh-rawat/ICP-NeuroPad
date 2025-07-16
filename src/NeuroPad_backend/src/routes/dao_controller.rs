@@ -80,7 +80,7 @@ pub async fn create_dao_canister(dao_detail: crate::DaoInput) -> Result<Principa
         image_canister: asset_canister_id,
         token_symbol: dao_detail.token_symbol,
         token_supply: dao_detail.token_supply,
-        daohouse_canister_id: ic_cdk::api::id(),
+        parent_agent_canister_id: ic_cdk::api::id(),
         proposal_entry : proposal_entry,
         ask_to_join_dao: dao_detail.ask_to_join_dao,
         all_dao_user : vec![],

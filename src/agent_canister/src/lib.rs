@@ -10,10 +10,9 @@ mod functions;
 mod guards;
 extern crate ic_cdk_macros;
 use candid::Principal;
-use icrc_ledger_types::icrc1::transfer::BlockIndex;
 use types::*;
 mod utils;
-
+use icrc_ledger_types::icrc1::transfer::BlockIndex;
 
 thread_local! {
     static STATE: RefCell<State> = RefCell::new(State::new());
@@ -24,8 +23,8 @@ pub fn with_state<R>(f: impl FnOnce(&mut State) -> R) -> R {
 }
 
 #[init]
-async fn init(dao_input: DaoInput) {
-    let proposal_entry: Vec<crate::ProposalPlace> = dao_input
+async fn init(agent_input: AgentCreationInput) {
+    let proposal_entry: Vec<crate::ProposalPlace> = agent_input
         .proposal_entry
         .iter()
         .map(|proposal| crate::ProposalPlace {
@@ -36,50 +35,49 @@ async fn init(dao_input: DaoInput) {
 
     let mut unique_members: HashSet<Principal> = HashSet::new();
     
-    for member in dao_input.members.iter() {
+    for member in agent_input.members.iter() {
         unique_members.insert(*member);
     }
 
-    for group in dao_input.dao_groups.iter() {
-        for group_member in group.group_members.iter() {
-            unique_members.insert(*group_member);
+    for group in agent_input.dao_groups.iter() {
+        for agent_user in group.group_members.iter() {
+            unique_members.insert(*agent_user);
         }
     }
 
-    let all_dao_user: Vec<Principal> = unique_members.into_iter().collect();
+    let all_agent_user: Vec<Principal> = unique_members.into_iter().collect();
     
-    let new_dao = Dao {
-        dao_id: ic_cdk::api::id(),
-        dao_name: dao_input.dao_name,
-        purpose: dao_input.purpose,
-        image_canister: dao_input.image_canister,
-        link_of_document: dao_input.link_of_document,
-        cool_down_period: dao_input.cool_down_period,
-        linksandsocials: dao_input.linksandsocials,
-        groups_count: dao_input.dao_groups.len() as u64,
-        required_votes: dao_input.required_votes,
-        members: dao_input.members.clone(),
-        image_id: dao_input.image_id,
-        members_count: dao_input.members.len() as u32,
-        members_permissions: dao_input.members_permissions,
+    let new_agent = AgentDetails {
+        agent_id: ic_cdk::api::id(),
+        agnet_name: agent_input.dao_name,
+        purpose: agent_input.purpose,
+        image_canister: agent_input.image_canister,
+        link_of_document: agent_input.link_of_document,
+        cool_down_period: agent_input.cool_down_period,
+        linksandsocials: agent_input.linksandsocials,
+        groups_count: agent_input.dao_groups.len() as u64,
+        required_votes: agent_input.required_votes,
+        members: agent_input.members.clone(),
+        image_id: agent_input.image_id,
+        members_count: agent_input.members.len() as u32,
+        members_permissions: agent_input.members_permissions,
         proposals_count: 0,
         proposal_ids: Vec::new(),
         token_ledger_id: LedgerCanisterId {
             id: Principal::anonymous(),
         },
-        total_tokens: dao_input.token_supply,
-        daohouse_canister_id: dao_input.daohouse_canister_id,
-        token_symbol: dao_input.token_symbol,
+        total_tokens: agent_input.token_supply,
+        agent_canister_id: agent_input.parent_agent_canister_id,
+        token_symbol: agent_input.token_symbol,
         proposal_entry: proposal_entry,
-        ask_to_join_dao : dao_input.ask_to_join_dao,
-        all_dao_user : all_dao_user,
+        all_agent_user : all_agent_user,
         requested_dao_user : Vec::new(),
     };
 
     with_state(|state| {
-        state.dao = new_dao.clone();
-        for x in dao_input.dao_groups.iter() {
-            state.dao_groups.insert(x.group_name.clone(), x.to_owned());
+        state.agent = new_agent.clone();
+        for x in agent_input.dao_groups.iter() {
+            state.agnet_groups.insert(x.group_name.clone(), x.to_owned());
         }
     });
 }

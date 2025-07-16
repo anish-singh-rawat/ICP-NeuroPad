@@ -605,7 +605,7 @@ pub struct DaoCanisterInput {
     pub image_id: String,
     pub members_permissions: Vec<ProposalType>,
     pub image_canister: Principal,
-    pub daohouse_canister_id: Principal,
+    pub parent_agent_canister_id: Principal,
     pub proposal_entry : Vec<ProposalPlace>,
     pub ask_to_join_dao : bool,
     pub all_dao_user : Vec<Principal>,

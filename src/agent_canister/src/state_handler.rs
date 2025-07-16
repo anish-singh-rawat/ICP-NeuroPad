@@ -1,4 +1,4 @@
-use crate::types::{Dao, Proposals};
+use crate::types::{AgentDetails, Proposals};
 use crate::{DaoGroup, LedgerCanisterId, Memory, ProposalStakes};
 use candid::Principal;
 use ic_stable_structures::StableBTreeMap;
@@ -6,8 +6,8 @@ use ic_stable_structures::StableBTreeMap;
 
 pub struct State {
     pub proposals: StableBTreeMap<String, Proposals, Memory>,
-    pub dao: Dao,
-    pub dao_groups: StableBTreeMap<String, DaoGroup, Memory>,
+    pub agent: AgentDetails,
+    pub agnet_groups: StableBTreeMap<String, DaoGroup, Memory>,
     pub proposal_balances: StableBTreeMap<String, ProposalStakes, Memory>,
 }
 
@@ -15,9 +15,9 @@ impl State {
     pub fn new() -> Self {
         Self {
             proposals: init_user_data(),
-            dao: Dao {
-                dao_id: Principal::anonymous(),
-                dao_name: String::from("Example DAO"),
+            agent : AgentDetails {
+                agent_id: Principal::anonymous(),
+                agnet_name: String::from("Example AGENT"),
                 purpose: String::from("Example Purpose"),
                 link_of_document: String::from("Example Document"),
                 cool_down_period: 7,
@@ -38,14 +38,13 @@ impl State {
                 total_tokens: 0,
                 token_symbol: String::new(),
                 image_canister: Principal::anonymous(),
-                daohouse_canister_id: Principal::anonymous(),
+                agent_canister_id: Principal::anonymous(),
                 proposal_entry : vec![],
-                ask_to_join_dao : true,
-                all_dao_user :  vec![],
+                all_agent_user :  vec![],
                 requested_dao_user : vec![],
             },
 
-            dao_groups: init_group_data(),
+            agnet_groups: init_group_data(),
             proposal_balances: init_dao_stake_data(),
         }
     }

@@ -209,9 +209,9 @@ pub struct LedgerCanisterId {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
-pub struct Dao {
-    pub dao_id: Principal,
-    pub dao_name: String,
+pub struct AgentDetails {
+    pub agent_id: Principal,
+    pub agnet_name: String,
     pub purpose: String,
     pub link_of_document: String,
     pub cool_down_period: u32,
@@ -228,10 +228,9 @@ pub struct Dao {
     pub token_ledger_id: LedgerCanisterId,
     pub total_tokens: u32,
     pub token_symbol: String,
-    pub daohouse_canister_id: Principal,
+    pub agent_canister_id: Principal,
     pub proposal_entry : Vec<ProposalPlace>,
-    pub ask_to_join_dao : bool,
-    pub all_dao_user : Vec<Principal>,
+    pub all_agent_user : Vec<Principal>,
     pub requested_dao_user : Vec<Principal>,
 }
 
@@ -262,7 +261,7 @@ pub struct DaoGroup {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
-pub struct DaoInput {
+pub struct AgentCreationInput {
     pub dao_name: String,
     pub purpose: String,
     pub link_of_document: String,
@@ -276,7 +275,7 @@ pub struct DaoInput {
     pub members_permissions: Vec<ProposalType>,
     pub token_symbol: String,
     pub token_supply: u32,
-    pub daohouse_canister_id: Principal,
+    pub parent_agent_canister_id: Principal,
     pub proposal_entry : Vec<ProposalPlace>,
     pub ask_to_join_dao : bool,
 }
