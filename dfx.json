@@ -5,13 +5,36 @@
       "package": "NeuroPad_backend",
       "type": "rust"
     },
+    "agent_canister": {
+      "candid": "src/agent_canister/agent_canister.did",
+      "package": "agent_canister",
+      "type": "rust"
+    },
+    "ic_asset_handler": {
+      "candid": "src/ic_asset_handler/ic_asset_handler.did",
+      "package": "ic_asset_handler",
+      "type": "rust"
+    },
+    "icrc1_ledger_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/7dee90107a88b836fc72e78993913988f4f73ca2/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/7dee90107a88b836fc72e78993913988f4f73ca2/canisters/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
+    },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "shrink": false,
+      "remote": {
+        "id": {
+          "ic": "bw4dl-smaaa-aaaaa-qaacq-cai"
+        }
+      }
+    },
     "NeuroPad_frontend": {
-      "dependencies": [
-        "NeuroPad_backend"
-      ],
-      "source": [
-        "src/NeuroPad_frontend/dist"
-      ],
+      "dependencies": ["NeuroPad_backend"],
+      "source": ["src/NeuroPad_frontend/dist"],
       "type": "assets",
       "workspace": "NeuroPad_frontend"
     }

@@ -1,5 +1,7 @@
 [workspace]
 members = [
-    "src/NeuroPad_backend"
+    "src/NeuroPad_backend",
+    "src/agent_canister",
+    "src/ic_asset_handler",
 ]
 resolver = "2"

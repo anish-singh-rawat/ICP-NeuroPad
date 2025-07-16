@@ -1,5 +1,5 @@
 [package]
-name = "NeuroPad_backend"
+name = "agent_canister"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,20 +10,14 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10.6"
-ic-cdk = "0.13.2"
 serde = { version = "1.0.160", features = ["derive"] }
-serde_json = "1.0"
-ic-cdk-timers = "0.7"
+ic-cdk-timers = "0.7" # Feel free to remove this dependency if you don't need timers
 candid-extractor = "0.1.2"
 serde_bytes = "0.11.14"
-base64 = "0.13.0"
 ic-stable-structures = "0.6.2"
 ciborium = { git = "https://github.com/enarx/ciborium", rev = "e719537c99b564c3674a56defe53713c702c6f46" }
-ic-cdk-macros = "0.8.4"
 getrandom = { version = "0.2", features = ["js"] }
 sha2 = "0.9.8"
+ic-cdk = "0.13.2"
+ic-cdk-macros = "0.13.2"
 icrc-ledger-types = "0.1.5"
-reqwest = { version = "0.11", features = ["json"] } # Add this if you need to make HTTP requests
-
-
-
