@@ -41,7 +41,6 @@ pub fn update_profile(state: &mut State, profile: Profileinput) -> Result<(), St
 
     // Clone the old profile and update the fields with new information
     let mut new_profile = state.user_profile.get(&principal_id).unwrap().clone();
-    new_profile.email_id = profile.email_id;
     new_profile.profile_img = profile.profile_img;
     new_profile.username = profile.username;
     new_profile.description = profile.description;

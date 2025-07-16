@@ -29,11 +29,12 @@ type InitialArgs = record {
   payment_recipient : principal;
 };
 type MinimalProfileinput = record {
+  user_name : text;
   image_title : text;
-  name : text;
+  user_twitter : opt text;
   image_content : blob;
+  user_website : opt text;
   image_content_type : text;
-  email_id : text;
 };
 type Pagination = record { end : nat32; start : nat32 };
 type Profileinput = record {
@@ -57,15 +58,16 @@ type UserProfile = record {
   image_canister : principal;
   post_id : vec text;
   username : text;
+  user_twitter : opt text;
   twitter_id : text;
   agent_ids : vec principal;
   description : text;
   post_count : nat32;
+  user_website : opt text;
   user_id : principal;
   website : text;
   join_agent : vec principal;
   contact_number : text;
-  email_id : text;
   profile_img : text;
   telegram : text;
   submitted_proposals : nat64;

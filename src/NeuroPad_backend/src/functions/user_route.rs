@@ -14,10 +14,6 @@ use super::ledger_functions::create_ledger_canister;
 
 #[update(guard=prevent_anonymous)]
 async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
-    // Validate email format
-    if !profile.email_id.contains('@') || !profile.email_id.contains('.') {
-        return Err(String::from(crate::utils::INVALID_EMAIL));
-    }
     let principal_id = api::caller();
 
     // Check if the user is already registered
@@ -53,9 +49,10 @@ async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> 
 
     let new_profile = UserProfile {
         user_id: principal_id,
-        email_id: profile.email_id,
         profile_img: image_id,
-        username: profile.name,
+        username: profile.user_name,
+        user_website: profile.user_website,
+        user_twitter: profile.user_twitter,
         agent_ids: Vec::new(),
         post_count: 0,
         post_id: Vec::new(),
@@ -138,7 +135,6 @@ async fn update_profile(
 
     with_state(|state| {
         let mut new_profile = state.user_profile.get(&principal_id).unwrap().clone();
-        new_profile.email_id = profile.email_id;
         new_profile.profile_img = image_id;
         new_profile.username = profile.username;
         new_profile.description = profile.description;
