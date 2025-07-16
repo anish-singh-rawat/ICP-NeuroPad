@@ -1,9 +1,8 @@
 use std::borrow::Borrow;
 use crate::routes::{create_dao_canister, create_new_ledger_canister, upload_image};
-use crate::types::CanisterIdRecord;
 use crate::types::{DaoInput, Profileinput, UserProfile};
 use crate::{
-    guards::*, Account, ArchiveOptions, CanisterData,
+    guards::*, Account, ArchiveOptions,
     FeatureFlags, InitArgs, LedgerArg, LedgerCanisterId, MinimalProfileinput,
 };
 use crate::{routes, with_state, DaoDetails, ImageData};
@@ -13,7 +12,6 @@ use ic_cdk::{query, update};
 
 use super::canister_functions::call_inter_canister;
 use super::ledger_functions::create_ledger_canister;
-use super::reverse_canister_creation;
 
 #[update(guard=prevent_anonymous)]
 async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
@@ -163,11 +161,6 @@ async fn update_profile(
     // with_state(|state| routes::update_profile(state, profile.clone()))
 }
 
-#[update(guard = prevent_anonymous)]
-async fn delete_profile() -> Result<(), String> {
-    with_state(|state| routes::delete_profile(state))
-}
-
 #[update]
 pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
     let principal_id = ic_cdk::api::caller();
@@ -190,11 +183,6 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
         Ok(val) => Ok(val),
 
         Err(err) => {
-            let _ = reverse_canister_creation(CanisterIdRecord {
-                canister_id: dao_canister_id,
-            })
-            .await;
-
             Err(format!("{} {}", crate::utils::CREATE_LEDGER_FAILURE, err))
         }
     }
@@ -203,7 +191,7 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
     let ledger_canister_id = res.map_err(|err| format!("Error in ledger canister id: {}", err))?;
 
     let dao_details: DaoDetails = DaoDetails {
-        dao_canister_id: dao_canister_id.clone(),
+        agent_canister_id: dao_canister_id.clone(),
         dao_name: dao_detail.dao_name,
         dao_desc: dao_detail.purpose,
         dao_associated_ledger: ledger_canister_id,
@@ -230,17 +218,6 @@ pub async fn create_dao(dao_detail: DaoInput) -> Result<String, String> {
     {
         Ok(()) => {}
         Err(err) => {
-            //   delete created canisters
-            let _ = reverse_canister_creation(CanisterIdRecord {
-                canister_id: dao_canister_id,
-            })
-            .await;
-
-            let _ = reverse_canister_creation(CanisterIdRecord {
-                canister_id: ledger_canister_id,
-            })
-            .await;
-
             return Err(format!("{}{}", crate::utils::INTER_CANISTER_FAILED, err));
         }
     }
@@ -281,25 +258,6 @@ fn check_user_existance() -> Result<String, String> {
         } else {
             Err(String::from(crate::utils::USER_DOES_NOT_EXIST))
         }
-    })
-}
-
-#[update(guard = prevent_anonymous)]
-fn get_profile_by_id(id: Principal) -> Result<UserProfile, String> {
-    let user_submitted_proposals : u64 = with_state(|state| {
-        state.proposal_store
-            .iter()
-            .filter(|(_key, proposal)| proposal.created_by == id)
-            .count()
-    }).try_into().unwrap();
-
-    with_state(|state| match state.user_profile.get(&id) {
-        Some(profile) => {
-            let mut user_profile: UserProfile = profile.clone();
-            user_profile.submitted_proposals = user_submitted_proposals;
-            Ok(user_profile)
-        },
-        None => Err(String::from(crate::utils::USER_DOES_NOT_EXIST)),
     })
 }
 
@@ -379,27 +337,4 @@ pub async fn create_ledger(
     create_ledger_canister(ledger_args).await
 
     // Ok("()".to_string())
-}
-
-// TODO REMOVE THIS
-#[query]
-fn get_canister_meta_data() -> Result<CanisterData, String> {
-    with_state(|state| match state.canister_data.get(&0) {
-        Some(val) => Ok(val),
-        None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
-    })
-    // with_state(|state| state.canister_data)
-}
-
-#[query(guard = prevent_anonymous)]
-async fn check_profile_existence() -> Result<(), String> {
-    let principal_id = api::caller();
-    let profile = with_state(|state| state.user_profile.get(&principal_id));
-
-    if let Some(user_profile) = profile {
-        if !user_profile.email_id.trim().is_empty() {
-            return Err(crate::utils::USER_REGISTERED.to_string());
-        }
-    }
-    Ok(())
 }

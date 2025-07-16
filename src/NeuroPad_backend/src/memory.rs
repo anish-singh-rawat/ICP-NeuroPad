@@ -4,12 +4,12 @@ use std::cell::RefCell;
 
 const POST_DATA: MemoryId = MemoryId::new(0);
 const USER_DATA: MemoryId = MemoryId::new(1);
-const DAO_DATA: MemoryId = MemoryId::new(2);
+const AGENT_DATA: MemoryId = MemoryId::new(2);
 const ANALYTICS_DATA: MemoryId = MemoryId::new(3);
 const WASM_DATA: MemoryId = MemoryId::new(4);
 const CANISTER_META_DATA: MemoryId = MemoryId::new(5);
 const CANISTER_IDS : MemoryId = MemoryId::new(6);
-const PROPOSAL_STATE: MemoryId = MemoryId::new(7);
+const TOKEN_STACK_STATE: MemoryId = MemoryId::new(7);
 
 
 pub type Memory = VirtualMemory<DefaultMemoryImpl>;
@@ -27,8 +27,8 @@ pub fn get_user_memory() -> Memory {
     MEMORY_MANAGER.with(|m| m.borrow().get(USER_DATA))
 }
 
-pub fn get_dao_memory() -> Memory {
-    MEMORY_MANAGER.with(|m| m.borrow().get(DAO_DATA))
+pub fn get_agent_memory() -> Memory {
+    MEMORY_MANAGER.with(|m| m.borrow().get(AGENT_DATA))
 }
 
 pub fn get_analytics_memory() -> Memory {
@@ -45,6 +45,6 @@ pub fn get_canister_id() -> Memory {
 pub fn get_canister_data_memory() -> Memory {
     MEMORY_MANAGER.with(|m| m.borrow().get(CANISTER_META_DATA))
 }
-pub fn get_proposal_memory() -> Memory {
-    MEMORY_MANAGER.with(|m| m.borrow().get(PROPOSAL_STATE))
+pub fn get_token_stack_memory() -> Memory {
+    MEMORY_MANAGER.with(|m| m.borrow().get(TOKEN_STACK_STATE))
 }

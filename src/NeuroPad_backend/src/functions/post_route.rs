@@ -1,5 +1,5 @@
 // use std::collections::BTreeMap;
-use crate::{with_state, Analytics, DaoDetails, DaoInput, Pagination};
+use crate::{with_state, DaoDetails, DaoInput, Pagination};
 use candid::{Nat, Principal};
 use ic_cdk::{api, update};
 use icrc_ledger_types::{
@@ -47,17 +47,6 @@ fn get_all_dao() -> Vec<DaoDetails> {
     return  daos;
 }
 
-#[query]
-fn get_analytics() -> Result<Analytics, String> {
-    with_state(|state| {
-        let data = state.analytics_content.get(&0);
-
-        match data {
-            Some(res) => Ok(res),
-            None => Err("data not found !!!!!".to_string()),
-        }
-    })
-}
 
 // ledger handlers
 async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, String> {
@@ -110,11 +99,6 @@ async fn make_payment_and_create_dao(dao_details:DaoInput)->Result<String, Strin
             }
         }
     }
-}
-
-#[query]
-fn get_cycles() -> u64 {
-    api::canister_balance()
 }
 
 #[query(guard = prevent_anonymous)]
