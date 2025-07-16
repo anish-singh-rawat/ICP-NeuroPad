@@ -924,7 +924,7 @@ export default function Launch() {
 
                         <Button
                           onClick={handleSubmit}
-                          disabled={!isStepValid(4) || isSubmitting}
+                          disabled={!isStepValid(5) || isSubmitting}
                           className="w-full bg-neuro-gradient hover:bg-neuro-gradient-dark text-white h-12 text-lg"
                         >
                           {isSubmitting ? (
