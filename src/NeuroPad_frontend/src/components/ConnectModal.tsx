@@ -15,7 +15,6 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { cn } from "../lib/utils";
 
 interface ConnectModalProps {
   isOpen: boolean;
@@ -83,7 +82,7 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
 
   return (
     <AnimatePresence>
-      <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="flex items-center justify-center h-screen bg-black/50 fixed inset-0 z-50">
         {/* Modal */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 30 }}
