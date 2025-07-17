@@ -3,21 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Rocket,
-  Upload,
-  Settings,
-  Coins,
-  Brain,
-  DollarSign,
+  Crown,
+  Zap,
+  Calendar,
   Clock,
-  Target,
+  DollarSign,
   Users,
-  Info,
+  PieChart,
   ArrowRight,
   Check,
   AlertTriangle,
+  Info,
+  Shield,
+  TrendingUp,
+  Target,
   FileText,
-  Image,
-  Zap,
+  Upload,
+  Brain,
+  Settings,
+  Star,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
@@ -25,97 +29,102 @@ import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
 import { cn } from "../lib/utils";
 
 interface FormData {
+  launchType: "genesis" | "standard" | "";
   agentName: string;
-  description: string;
-  category: string;
+  agentOverview: string;
   tokenName: string;
   tokenSymbol: string;
   totalSupply: string;
-  fundingGoal: string;
-  depositAmount: string;
-  agentLogo: File | null;
-  agentModel: File | null;
+  minimumCap: string;
+  tokenomicsProposal: string;
+  launchDate: string;
+  category: string;
   website: string;
   twitter: string;
-  github: string;
   discord: string;
+  telegram: string;
 }
 
 const categories = [
-  "Finance & Trading",
-  "Marketing & Content",
-  "Healthcare & Medical",
-  "Gaming & Entertainment",
-  "Environment & Sustainability",
-  "Legal & Compliance",
-  "Education & Research",
+  "DeFi & Trading",
+  "NFT & Gaming",
+  "AI & Machine Learning",
+  "Social & Community",
+  "Infrastructure & Tools",
+  "Analytics & Data",
+  "Content & Media",
   "Security & Privacy",
 ];
 
-const MINIMUM_DEPOSIT = 1000; // NeuroPad tokens
-const MINIMUM_CAP_HOURS = 24;
+const CREATION_FEE = 100; // $ARMY
+const GENESIS_MIN_FDV = 336000; // $ARMY
+const GENESIS_MIN_FDV_USD = 67000; // USD
+const COMMITMENT_THRESHOLD = 42425; // $ARMY
+const MAX_ALLOCATION = 0.5; // percentage
 
 export default function Launch() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
+    launchType: "",
     agentName: "",
-    description: "",
-    category: "",
+    agentOverview: "",
     tokenName: "",
     tokenSymbol: "",
     totalSupply: "",
-    fundingGoal: "",
-    depositAmount: "",
-    agentLogo: null,
-    agentModel: null,
+    minimumCap: "",
+    tokenomicsProposal: "",
+    launchDate: "",
+    category: "",
     website: "",
     twitter: "",
-    github: "",
     discord: "",
+    telegram: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [depositConfirmed, setDepositConfirmed] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
-  const updateFormData = (
-    field: keyof FormData,
-    value: string | File | null,
-  ) => {
+  const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const steps = [
     {
       id: 1,
-      title: "Agent Details",
-      description: "Define your AI agent's core information",
-      icon: Brain,
+      title: "Launch Type",
+      description: "Choose your agent launch option",
+      icon: Rocket,
     },
     {
       id: 2,
-      title: "Tokenomics",
-      description: "Configure your agent's token economics",
-      icon: Coins,
+      title: "Agent Details",
+      description: "Provide core information about your agent",
+      icon: Brain,
     },
     {
       id: 3,
-      title: "Assets & Links",
-      description: "Upload files and social media links",
-      icon: Upload,
+      title: "Tokenomics Configuration",
+      description: "Configure token economics and funding",
+      icon: Settings,
     },
     {
       id: 4,
-      title: "Deposit & Launch",
-      description: "Make deposit and launch your agent",
-      icon: Rocket,
+      title: "Tokenomics Design",
+      description: "Customize your token distribution plan",
+      icon: PieChart,
+    },
+    {
+      id: 5,
+      title: "Schedule & Launch",
+      description: "Set launch date and confirm submission",
+      icon: Calendar,
     },
   ];
 
   const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
@@ -128,29 +137,51 @@ export default function Launch() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
     // Handle successful submission
+    alert("Agent launch request submitted successfully!");
   };
 
   const isStepValid = (step: number) => {
     switch (step) {
       case 1:
-        return formData.agentName && formData.description && formData.category;
+        return formData.launchType !== "";
       case 2:
+        return (
+          formData.agentName && formData.agentOverview && formData.category
+        );
+      case 3:
         return (
           formData.tokenName &&
           formData.tokenSymbol &&
           formData.totalSupply &&
-          formData.fundingGoal
+          formData.minimumCap
         );
-      case 3:
-        return formData.agentLogo && formData.agentModel;
       case 4:
-        return (
-          parseFloat(formData.depositAmount) >= MINIMUM_DEPOSIT &&
-          depositConfirmed
-        );
+        return formData.tokenomicsProposal;
+      case 5:
+        return formData.launchDate && termsAccepted;
       default:
         return false;
     }
+  };
+
+  const getTokenomicsBreakdown = () => {
+    if (formData.launchType === "genesis") {
+      return [
+        { label: "Public Sale", percentage: 37.5, color: "bg-neuro-500" },
+        { label: "Liquidity Pool", percentage: 12.5, color: "bg-electric-500" },
+        {
+          label: "Developer's Allocation",
+          percentage: 50,
+          color: "bg-green-500",
+        },
+      ];
+    } else if (formData.launchType === "standard") {
+      return [
+        { label: "Public Sale", percentage: 87.5, color: "bg-neuro-500" },
+        { label: "Liquidity Pool", percentage: 12.5, color: "bg-electric-500" },
+      ];
+    }
+    return [];
   };
 
   return (
@@ -158,7 +189,7 @@ export default function Launch() {
       <Navbar />
 
       <div className="pt-24 pb-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -166,20 +197,28 @@ export default function Launch() {
             transition={{ duration: 0.8 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">
               Launch Your <span className="text-gradient">AI Agent</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6">
-              Create and deploy your AI agent to the NeuroPad marketplace
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
+              Create and deploy your AI agent powered by DIP-20 token economics
+              on the decentralized ICP blockchain. Build, monetize, and grow
+              your community.
             </p>
-            <Link
-              to="/tokenomics"
-              className="inline-flex items-center space-x-2 text-neuro-500 hover:text-neuro-600 transition-colors"
-            >
-              <Info className="w-4 h-4" />
-              <span>Learn about tokenomics</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground">
+              <div className="flex items-center space-x-2">
+                <Shield className="w-4 h-4 text-green-500" />
+                <span>Decentralized</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-neuro-500" />
+                <span>Revenue Sharing</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-electric-500" />
+                <span>Community Driven</span>
+              </div>
+            </div>
           </motion.div>
 
           {/* Progress Steps */}
@@ -194,7 +233,6 @@ export default function Launch() {
                 const Icon = step.icon;
                 const isActive = currentStep === step.id;
                 const isCompleted = currentStep > step.id;
-                const isValid = isStepValid(step.id);
 
                 return (
                   <div key={step.id} className="flex-1 relative">
@@ -226,7 +264,7 @@ export default function Launch() {
                         >
                           {step.title}
                         </div>
-                        <div className="text-xs text-muted-foreground hidden sm:block">
+                        <div className="text-xs text-muted-foreground hidden sm:block ">
                           {step.description}
                         </div>
                       </div>
@@ -261,15 +299,175 @@ export default function Launch() {
                   transition={{ duration: 0.3 }}
                   className="glass dark:glass-dark rounded-2xl p-8 border border-white/10"
                 >
-                  {/* Step 1: Agent Details */}
+                  {/* Step 1: Launch Type Selection */}
                   {currentStep === 1 && (
                     <div className="space-y-6">
                       <div>
                         <h2 className="text-2xl font-bold mb-2">
-                          Agent Details
+                          Choose Launch Type
                         </h2>
                         <p className="text-muted-foreground">
-                          Provide basic information about your AI agent
+                          Select how you want to launch your AI agent
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Genesis Launch */}
+                        <div
+                          onClick={() =>
+                            updateFormData("launchType", "genesis")
+                          }
+                           className={cn(
+                            "p-6 border-2 rounded-xl cursor-pointer transition-all duration-300",
+                            formData.launchType === "genesis"
+                              ? "border-neuro-500 bg-neuro-50/50"
+                              : "border-border",
+                          )}
+                        >
+                          <div className="flex items-center space-x-3 mb-4">
+                            <Crown className="w-8 h-8 text-yellow-500" />
+                            <div>
+                              <h3 className="text-lg font-bold">
+                                Genesis Launch
+                              </h3>
+                              <Badge variant="secondary" className="text-xs">
+                                Premium Option
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Min FDV at Launch:
+                              </span>
+                              <span className="font-medium">
+                                {GENESIS_MIN_FDV.toLocaleString()} $ARMY
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Approx USD Value:
+                              </span>
+                              <span className="font-medium">
+                                ${GENESIS_MIN_FDV_USD.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Creation Fee:
+                              </span>
+                              <span className="font-medium">
+                                {CREATION_FEE} $ARMY
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 space-y-2">
+                            <h4 className="font-medium text-sm">Tokenomics:</h4>
+                            <div className="text-xs space-y-1">
+                              <div>• 37.5% Public Sale</div>
+                              <div>• 12.5% Liquidity Pool</div>
+                              <div>• 50% Developer's Allocation</div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg">
+                            <div className="flex items-start space-x-2">
+                              <Clock className="w-4 h-4 text-amber-600 mt-0.5" />
+                              <div className="text-xs text-amber-700 dark:text-amber-400">
+                                <strong>24-hour commitment window:</strong>{" "}
+                                Launch succeeds if{" "}
+                                {COMMITMENT_THRESHOLD.toLocaleString()} $ARMY is
+                                committed. Max {MAX_ALLOCATION}% allocation per
+                                user.
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Standard Launch */}
+                        <div
+                          onClick={() =>
+                            updateFormData("launchType", "standard")
+                          }
+                           className={cn(
+                            "p-6 border-2 rounded-xl cursor-pointer transition-all duration-300",
+                            formData.launchType === "standard"
+                              ? "border-neuro-500 bg-neuro-50/50"
+                              : "border-border",
+                          )}
+                        >
+                          <div className="flex items-center space-x-3 mb-4">
+                            <Zap className="w-8 h-8 text-electric-500" />
+                            <div>
+                              <h3 className="text-lg font-bold">
+                                Standard Launch
+                              </h3>
+                              <Badge variant="outline" className="text-xs">
+                                Instant Launch
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Launch Type:
+                              </span>
+                              <span className="font-medium">Instant</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Sentient Threshold:
+                              </span>
+                              <span className="font-medium">
+                                {COMMITMENT_THRESHOLD.toLocaleString()} $ARMY
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Creation Fee:
+                              </span>
+                              <span className="font-medium">
+                                {CREATION_FEE} $ARMY
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 space-y-2">
+                            <h4 className="font-medium text-sm">Tokenomics:</h4>
+                            <div className="text-xs space-y-1">
+                              <div>• 87.5% Public Sale</div>
+                              <div>• 12.5% Liquidity Pool</div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                            <div className="flex items-start space-x-2">
+                              <Target className="w-4 h-4 text-green-600 mt-0.5" />
+                              <div className="text-xs text-green-700 dark:text-green-400">
+                                <strong>Instant launch:</strong> New token
+                                created immediately. Agent becomes Sentient once{" "}
+                                {COMMITMENT_THRESHOLD.toLocaleString()} $ARMY is
+                                bought.
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: Agent Details */}
+                  {currentStep === 2 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">
+                          Agent Overview
+                        </h2>
+                        <p className="text-muted-foreground">
+                          Provide core information about your AI agent
                         </p>
                       </div>
 
@@ -278,25 +476,11 @@ export default function Launch() {
                           <Label htmlFor="agentName">Agent Name *</Label>
                           <Input
                             id="agentName"
-                            placeholder="e.g., DataMiner Pro"
+                            placeholder="e.g., TradingBot Alpha"
                             value={formData.agentName}
                             onChange={(e) =>
                               updateFormData("agentName", e.target.value)
                             }
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="description">Description *</Label>
-                          <Textarea
-                            id="description"
-                            placeholder="Describe what your AI agent does and its unique capabilities..."
-                            value={formData.description}
-                            onChange={(e) =>
-                              updateFormData("description", e.target.value)
-                            }
-                            rows={4}
                             className="mt-1"
                           />
                         </div>
@@ -319,145 +503,25 @@ export default function Launch() {
                             ))}
                           </select>
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 2: Tokenomics */}
-                  {currentStep === 2 && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2">Tokenomics</h2>
-                        <p className="text-muted-foreground">
-                          Configure your agent's token economics and funding
-                          goals
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="tokenName">Token Name *</Label>
-                          <Input
-                            id="tokenName"
-                            placeholder="e.g., DataMiner Token"
-                            value={formData.tokenName}
-                            onChange={(e) =>
-                              updateFormData("tokenName", e.target.value)
-                            }
-                            className="mt-1"
-                          />
-                        </div>
 
                         <div>
-                          <Label htmlFor="tokenSymbol">Token Symbol *</Label>
-                          <Input
-                            id="tokenSymbol"
-                            placeholder="e.g., DMT"
-                            value={formData.tokenSymbol}
-                            onChange={(e) =>
-                              updateFormData(
-                                "tokenSymbol",
-                                e.target.value.toUpperCase(),
-                              )
-                            }
-                            className="mt-1"
-                            maxLength={5}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="totalSupply">Total Supply *</Label>
-                          <Input
-                            id="totalSupply"
-                            type="number"
-                            placeholder="1000000"
-                            value={formData.totalSupply}
-                            onChange={(e) =>
-                              updateFormData("totalSupply", e.target.value)
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="fundingGoal">
-                            Minimum Cap (NeuroPad) *
+                          <Label htmlFor="agentOverview">
+                            Project Pitch - Agent Overview *
                           </Label>
-                          <Input
-                            id="fundingGoal"
-                            type="number"
-                            placeholder="50000"
-                            value={formData.fundingGoal}
+                          <Textarea
+                            id="agentOverview"
+                            placeholder="Describe the purpose and vision of your AI agent. What problem does it solve? What makes it unique? How will it benefit the community?"
+                            value={formData.agentOverview}
                             onChange={(e) =>
-                              updateFormData("fundingGoal", e.target.value)
+                              updateFormData("agentOverview", e.target.value)
                             }
+                            rows={6}
                             className="mt-1"
                           />
                           <p className="text-xs text-muted-foreground mt-1">
-                            Must be reached within 24 hours of launch
+                            This will be displayed to potential investors and
+                            users
                           </p>
-                        </div>
-                      </div>
-
-                      <div className="bg-neuro-50/50 dark:bg-neuro-950/50 rounded-lg p-4">
-                        <div className="flex items-start space-x-3">
-                          <Clock className="w-5 h-5 text-neuro-500 mt-0.5" />
-                          <div>
-                            <h4 className="font-medium text-neuro-700 dark:text-neuro-300">
-                              24-Hour Launch Window
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              Your agent token will only be created if the
-                              minimum cap is reached within 24 hours. If not
-                              met, all deposits will be refunded.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 3: Assets & Links */}
-                  {currentStep === 3 && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2">
-                          Assets & Links
-                        </h2>
-                        <p className="text-muted-foreground">
-                          Upload your agent files and provide social links
-                        </p>
-                      </div>
-
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <Label htmlFor="agentLogo">Agent Logo *</Label>
-                            <div className="mt-1 border-2 border-dashed border-muted rounded-lg p-6 text-center hover:border-neuro-500 transition-colors cursor-pointer">
-                              <Image className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                              <p className="text-sm text-muted-foreground">
-                                Click to upload logo
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                PNG, JPG up to 2MB
-                              </p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label htmlFor="agentModel">AI Model File *</Label>
-                            <div className="mt-1 border-2 border-dashed border-muted rounded-lg p-6 text-center hover:border-neuro-500 transition-colors cursor-pointer">
-                              <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                              <p className="text-sm text-muted-foreground">
-                                Click to upload model
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                ZIP, TAR up to 100MB
-                              </p>
-                            </div>
-                          </div>
                         </div>
 
                         <div className="space-y-4">
@@ -490,18 +554,6 @@ export default function Launch() {
                               />
                             </div>
                             <div>
-                              <Label htmlFor="github">GitHub</Label>
-                              <Input
-                                id="github"
-                                placeholder="github.com/username"
-                                value={formData.github}
-                                onChange={(e) =>
-                                  updateFormData("github", e.target.value)
-                                }
-                                className="mt-1"
-                              />
-                            </div>
-                            <div>
                               <Label htmlFor="discord">Discord</Label>
                               <Input
                                 id="discord"
@@ -513,98 +565,409 @@ export default function Launch() {
                                 className="mt-1"
                               />
                             </div>
+                            <div>
+                              <Label htmlFor="telegram">Telegram</Label>
+                              <Input
+                                id="telegram"
+                                placeholder="t.me/channel"
+                                value={formData.telegram}
+                                onChange={(e) =>
+                                  updateFormData("telegram", e.target.value)
+                                }
+                                className="mt-1"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Step 4: Deposit & Launch */}
+                  {/* Step 3: Tokenomics Configuration */}
+                  {currentStep === 3 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">
+                          Tokenomics Configuration
+                        </h2>
+                        <p className="text-muted-foreground">
+                          Configure your agent's token economics and funding
+                          goals
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="tokenName">Token Name *</Label>
+                            <Input
+                              id="tokenName"
+                              placeholder="e.g., DataMiner Token"
+                              value={formData.tokenName}
+                              onChange={(e) =>
+                                updateFormData("tokenName", e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="tokenSymbol">Token Symbol *</Label>
+                            <Input
+                              id="tokenSymbol"
+                              placeholder="e.g., DMT"
+                              value={formData.tokenSymbol}
+                              onChange={(e) =>
+                                updateFormData(
+                                  "tokenSymbol",
+                                  e.target.value.toUpperCase(),
+                                )
+                              }
+                              className="mt-1"
+                              maxLength={5}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="totalSupply">Total Supply *</Label>
+                            <Input
+                              id="totalSupply"
+                              type="number"
+                              placeholder="e.g., 1,000,000"
+                              value={formData.totalSupply}
+                              onChange={(e) =>
+                                updateFormData("totalSupply", e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <Label htmlFor="minimumCap">
+                              Minimum Cap (NeuroPad) *
+                            </Label>
+                            <Input
+                              id="minimumCap"
+                              type="number"
+                              placeholder="e.g., 50,000"
+                              value={formData.minimumCap}
+                              onChange={(e) =>
+                                updateFormData("minimumCap", e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
+                              💡 Note:
+                            </h4>
+                            <p className="text-sm text-blue-700 dark:text-blue-400">
+                              The minimum cap must be reached within 24 hours of
+                              launch. If it's not met, all deposits will be
+                              refunded automatically.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                          <Clock className="w-5 h-5 text-amber-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-amber-800 dark:text-amber-300 mb-2">
+                              🕒 24-Hour Launch Window Rule
+                            </h4>
+                            <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                              Your agent token will only be created if the
+                              minimum cap is reached within 24 hours of launch.
+                            </p>
+                            <p className="text-sm text-amber-700 dark:text-amber-400">
+                              Otherwise, no token gets minted and users get
+                              their funds back.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 4: Tokenomics Design */}
                   {currentStep === 4 && (
                     <div className="space-y-6">
                       <div>
                         <h2 className="text-2xl font-bold mb-2">
-                          Deposit & Launch
+                          Tokenomics Design Proposal
                         </h2>
                         <p className="text-muted-foreground">
-                          Make your deposit and launch your agent
+                          Customize your token distribution plan and economic
+                          model
+                        </p>
+                      </div>
+
+                      {formData.launchType && (
+                        <div className="bg-muted/30 rounded-lg p-6">
+                          <h3 className="font-bold mb-4 flex items-center space-x-2">
+                            <PieChart className="w-5 h-5 text-neuro-500" />
+                            <span>
+                              {formData.launchType === "genesis"
+                                ? "Genesis"
+                                : "Standard"}{" "}
+                              Launch Tokenomics
+                            </span>
+                          </h3>
+
+                          <div className="space-y-3">
+                            {getTokenomicsBreakdown().map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center space-x-3"
+                              >
+                                <div
+                                  className={cn(
+                                    "w-4 h-4 rounded-full",
+                                    item.color,
+                                  )}
+                                />
+                                <span className="text-sm font-medium flex-1">
+                                  {item.label}
+                                </span>
+                                <span className="text-sm font-bold">
+                                  {item.percentage}%
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="mt-4 p-4 bg-background rounded-lg">
+                            <div className="flex items-start space-x-2">
+                              <Info className="w-4 h-4 text-blue-500 mt-0.5" />
+                              <div className="text-xs text-muted-foreground">
+                                {formData.launchType === "genesis"
+                                  ? "Genesis launch provides higher developer allocation for long-term project development and community building."
+                                  : "Standard launch maximizes public sale allocation for broader community participation and liquidity."}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <Label htmlFor="tokenomicsProposal">
+                          Custom Tokenomics Proposal *
+                        </Label>
+                        <Textarea
+                          id="tokenomicsProposal"
+                          placeholder="Describe your detailed tokenomics strategy including:&#10;• Token utility and use cases&#10;• Vesting schedules (if applicable)&#10;• Staking/governance mechanisms&#10;• Revenue sharing model&#10;• Long-term sustainability plan&#10;• Community incentives"
+                          value={formData.tokenomicsProposal}
+                          onChange={(e) =>
+                            updateFormData("tokenomicsProposal", e.target.value)
+                          }
+                          rows={8}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Provide a comprehensive tokenomics design that aligns
+                          with your agent's goals
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 5: Schedule & Launch */}
+                  {currentStep === 5 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-2">
+                          Schedule & Launch
+                        </h2>
+                        <p className="text-muted-foreground">
+                          Set your launch date and confirm submission
                         </p>
                       </div>
 
                       <div className="space-y-6">
-                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                          <div className="flex items-start space-x-3">
-                            <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
-                            <div>
-                              <h4 className="font-medium text-amber-800 dark:text-amber-300">
-                                Deposit Requirement
-                              </h4>
-                              <p className="text-sm text-amber-700 dark:text-amber-400">
-                                You must deposit a minimum of{" "}
-                                {MINIMUM_DEPOSIT.toLocaleString()} NeuroPad
-                                tokens to launch your agent.
-                              </p>
+                        {formData.launchType === "genesis" && (
+                          <div>
+                            <Label htmlFor="launchDate">Launch Date *</Label>
+                            <Input
+                              id="launchDate"
+                              type="datetime-local"
+                              value={formData.launchDate}
+                              onChange={(e) =>
+                                updateFormData("launchDate", e.target.value)
+                              }
+                              className="mt-1"
+                              min={new Date(Date.now() + 24 * 60 * 60 * 1000)
+                                .toISOString()
+                                .slice(0, 16)}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Schedule your agent launch (minimum 24 hours from
+                              now)
+                            </p>
+                          </div>
+                        )}
+
+                        {formData.launchType === "standard" && (
+                          <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                            <div className="flex items-start space-x-3">
+                              <Zap className="w-5 h-5 text-green-600 mt-0.5" />
+                              <div>
+                                <h4 className="font-medium text-green-800 dark:text-green-300">
+                                  Instant Launch Ready
+                                </h4>
+                                <p className="text-sm text-green-700 dark:text-green-400">
+                                  Your agent will be launched immediately upon
+                                  submission and fee payment.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Summary */}
+                        <div className="bg-muted/30 rounded-lg p-6">
+                          <h3 className="font-bold mb-4">Launch Summary</h3>
+                          <div className="space-y-3 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Launch Type:
+                              </span>
+                              <Badge
+                                variant={
+                                  formData.launchType === "genesis"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {formData.launchType === "genesis"
+                                  ? "Genesis"
+                                  : "Standard"}
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Agent Name:
+                              </span>
+                              <span className="font-medium">
+                                {formData.agentName || "—"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Category:
+                              </span>
+                              <span>{formData.category || "—"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Token Symbol:
+                              </span>
+                              <span className="font-medium">
+                                {formData.tokenSymbol || "—"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Total Supply:
+                              </span>
+                              <span>
+                                {formData.totalSupply
+                                  ? `${parseInt(formData.totalSupply).toLocaleString()}`
+                                  : "—"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Minimum Cap:
+                              </span>
+                              <span>
+                                {formData.minimumCap
+                                  ? `${parseInt(formData.minimumCap).toLocaleString()} NPT`
+                                  : "—"}
+                              </span>
+                            </div>
+                            {formData.launchType === "genesis" && (
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">
+                                  Launch Date:
+                                </span>
+                                <span>
+                                  {formData.launchDate
+                                    ? new Date(
+                                        formData.launchDate,
+                                      ).toLocaleString()
+                                    : "—"}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex justify-between border-t pt-3">
+                              <span className="text-muted-foreground">
+                                Creation Fee:
+                              </span>
+                              <span className="font-bold text-neuro-600">
+                                {CREATION_FEE} $ARMY
+                              </span>
                             </div>
                           </div>
                         </div>
 
-                        <div>
-                          <Label htmlFor="depositAmount">
-                            Deposit Amount (NeuroPad) *
-                          </Label>
-                          <Input
-                            id="depositAmount"
-                            type="number"
-                            placeholder={MINIMUM_DEPOSIT.toString()}
-                            value={formData.depositAmount}
-                            onChange={(e) =>
-                              updateFormData("depositAmount", e.target.value)
-                            }
-                            className="mt-1"
-                            min={MINIMUM_DEPOSIT}
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Minimum: {MINIMUM_DEPOSIT.toLocaleString()} NeuroPad
-                            tokens
-                          </p>
-                        </div>
-
+                        {/* Terms and Conditions */}
                         <div className="space-y-4">
-                          <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
+                          <div className="flex items-start space-x-3 p-4 border border-border rounded-lg">
                             <input
                               type="checkbox"
-                              id="confirmDeposit"
-                              checked={depositConfirmed}
+                              id="terms"
+                              checked={termsAccepted}
                               onChange={(e) =>
-                                setDepositConfirmed(e.target.checked)
+                                setTermsAccepted(e.target.checked)
                               }
-                              className="w-4 h-4 text-neuro-600 bg-gray-100 border-gray-300 rounded focus:ring-neuro-500"
+                              className="w-4 h-4 text-neuro-600 bg-gray-100 border-gray-300 rounded focus:ring-neuro-500 mt-0.5"
                             />
                             <label
-                              htmlFor="confirmDeposit"
-                              className="text-sm font-medium cursor-pointer"
+                              htmlFor="terms"
+                              className="text-sm cursor-pointer"
                             >
-                              I understand that my deposit will be held until
-                              the minimum cap is reached within 24 hours, and I
-                              agree to the terms and conditions.
+                              I understand and agree to the{" "}
+                              <Link
+                                to="/terms"
+                                className="text-neuro-500 hover:text-neuro-600"
+                              >
+                                Terms of Service
+                              </Link>
+                              , including the non-refundable creation fee of{" "}
+                              {CREATION_FEE} $ARMY, launch requirements, and
+                              tokenomics distribution.
                             </label>
                           </div>
                         </div>
 
                         <Button
                           onClick={handleSubmit}
-                          disabled={!isStepValid(4) || isSubmitting}
-                          className="w-full bg-neuro-gradient hover:bg-neuro-gradient-dark text-white h-12"
+                          disabled={!isStepValid(5) || isSubmitting}
+                          className="w-full bg-neuro-gradient hover:bg-neuro-gradient-dark text-white h-12 text-lg"
                         >
                           {isSubmitting ? (
                             <div className="flex items-center space-x-2">
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                              <span>Processing...</span>
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span>Processing Launch...</span>
                             </div>
                           ) : (
                             <div className="flex items-center space-x-2">
-                              <Rocket className="w-5 h-5" />
-                              <span>Launch Agent</span>
+                              <Rocket className="w-6 h-6" />
+                              <span>
+                                {formData.launchType === "genesis"
+                                  ? "Schedule Genesis Launch"
+                                  : "Launch Agent Now"}
+                              </span>
                             </div>
                           )}
                         </Button>
@@ -622,7 +985,7 @@ export default function Launch() {
                     >
                       Previous
                     </Button>
-                    {currentStep < 4 && (
+                    {currentStep < 5 && (
                       <Button
                         onClick={nextStep}
                         disabled={!isStepValid(currentStep)}
@@ -638,54 +1001,111 @@ export default function Launch() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Summary */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-                className="glass dark:glass-dark rounded-2xl p-6 border border-white/10"
-              >
-                <h3 className="font-bold mb-4 flex items-center space-x-2">
-                  <Target className="w-5 h-5 text-neuro-500" />
-                  <span>Launch Summary</span>
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Agent Name</span>
-                    <span>{formData.agentName || "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Token Symbol</span>
-                    <span>{formData.tokenSymbol || "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Supply</span>
+              {/* Launch Type Info */}
+              {formData.launchType && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                  className="glass dark:glass-dark rounded-2xl p-6 border border-white/10"
+                >
+                  <h3 className="font-bold mb-4 flex items-center space-x-2">
+                    {formData.launchType === "genesis" ? (
+                      <Crown className="w-5 h-5 text-yellow-500" />
+                    ) : (
+                      <Zap className="w-5 h-5 text-electric-500" />
+                    )}
                     <span>
-                      {formData.totalSupply
-                        ? `${parseInt(formData.totalSupply).toLocaleString()}`
-                        : "—"}
+                      {formData.launchType === "genesis"
+                        ? "Genesis"
+                        : "Standard"}{" "}
+                      Launch
                     </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Minimum Cap</span>
-                    <span>
-                      {formData.fundingGoal
-                        ? `${parseInt(formData.fundingGoal).toLocaleString()} NPT`
-                        : "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Your Deposit</span>
-                    <span>
-                      {formData.depositAmount
-                        ? `${parseInt(formData.depositAmount).toLocaleString()} NPT`
-                        : "—"}
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
+                  </h3>
 
-              {/* Key Features */}
+                  <div className="space-y-3 text-sm">
+                    {formData.launchType === "genesis" ? (
+                      <>
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4 text-amber-500" />
+                          <span>24-hour commitment window</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Target className="w-4 h-4 text-green-500" />
+                          <span>
+                            {COMMITMENT_THRESHOLD.toLocaleString()} $ARMY
+                            threshold
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4 text-blue-500" />
+                          <span>Max {MAX_ALLOCATION}% per user</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-4 h-4 text-neuro-500" />
+                          <span>50% developer allocation</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center space-x-2">
+                          <Zap className="w-4 h-4 text-electric-500" />
+                          <span>Instant token creation</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Brain className="w-4 h-4 text-purple-500" />
+                          <span>
+                            Sentient at {COMMITMENT_THRESHOLD.toLocaleString()}{" "}
+                            $ARMY
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4 text-blue-500" />
+                          <span>87.5% public allocation</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <TrendingUp className="w-4 h-4 text-green-500" />
+                          <span>Maximum liquidity</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Tokenomics Breakdown */}
+              {formData.launchType && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
+                  className="glass dark:glass-dark rounded-2xl p-6 border border-white/10"
+                >
+                  <h3 className="font-bold mb-4 flex items-center space-x-2">
+                    <PieChart className="w-5 h-5 text-neuro-500" />
+                    <span>Token Distribution</span>
+                  </h3>
+
+                  <div className="space-y-3">
+                    {getTokenomicsBreakdown().map((item, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>{item.label}</span>
+                          <span className="font-bold">{item.percentage}%</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div
+                            className={cn("h-2 rounded-full", item.color)}
+                            style={{ width: `${item.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Help & Resources */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -693,55 +1113,34 @@ export default function Launch() {
                 className="glass dark:glass-dark rounded-2xl p-6 border border-white/10"
               >
                 <h3 className="font-bold mb-4 flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-electric-500" />
-                  <span>Key Features</span>
+                  <Info className="w-5 h-5 text-blue-500" />
+                  <span>Resources</span>
                 </h3>
-                <div className="space-y-3">
-                  {[
-                    "24-hour launch window",
-                    "Automatic token creation",
-                    "Community funding",
-                    "Revenue sharing",
-                    "Decentralized governance",
-                  ].map((feature, index) => (
-                    <div
-                      key={feature}
-                      className="flex items-center space-x-2 text-sm"
-                    >
-                      <div className="w-2 h-2 bg-electric-500 rounded-full" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Help */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6 }}
-                className="glass dark:glass-dark rounded-2xl p-6 border border-white/10"
-              >
-                <h3 className="font-bold mb-4">Need Help?</h3>
                 <div className="space-y-3 text-sm">
                   <Link
-                    to="/tokenomics"
+                    to="/docs/launch-guide"
+                    className="block text-neuro-500 hover:text-neuro-600 transition-colors"
+                  >
+                    → Complete Launch Guide
+                  </Link>
+                  <Link
+                    to="/docs/tokenomics"
                     className="block text-neuro-500 hover:text-neuro-600 transition-colors"
                   >
                     → Understanding Tokenomics
                   </Link>
-                  <a
-                    href="#"
+                  <Link
+                    to="/docs/dip20"
                     className="block text-neuro-500 hover:text-neuro-600 transition-colors"
                   >
-                    → Launch Guide
-                  </a>
-                  <a
-                    href="#"
+                    → DIP-20 Token Standard
+                  </Link>
+                  <Link
+                    to="/community"
                     className="block text-neuro-500 hover:text-neuro-600 transition-colors"
                   >
-                    → Community Support
-                  </a>
+                    �� Community Support
+                  </Link>
                 </div>
               </motion.div>
             </div>
