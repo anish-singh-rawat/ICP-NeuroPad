@@ -1,27 +1,44 @@
 type AgentDetails = record {
-  agnet_desc : text;
+  members : vec principal;
+  image_title : text;
+  token_symbol : text;
+  agent_category : text;
+  agent_twitter : text;
+  agent_telegram : text;
   agent_canister_id : principal;
+  image_id : text;
   agent_name : text;
+  agent_type : AgentType;
+  agent_description : text;
+  agent_lunch_time : nat64;
+  agent_website : text;
   agent_associated_ledger : principal;
+  agent_overview : text;
+  agent_discord : text;
+  token_name : text;
+  token_supply : nat32;
 };
 type AgentInput = record {
   members : vec principal;
   image_title : text;
   token_symbol : text;
-  linksandsocials : vec text;
+  agent_category : text;
+  agent_twitter : text;
   image_content : blob;
-  agent_desc : text;
+  agent_telegram : text;
   image_id : text;
   agent_name : text;
-  agent_associated_ledger : principal;
-  link_of_document : text;
+  agent_type : AgentType;
+  agent_description : text;
+  agent_lunch_time : nat64;
+  agent_website : text;
   image_content_type : text;
-  cool_down_period : nat32;
+  agent_overview : text;
+  agent_discord : text;
   token_name : text;
-  purpose : text;
   token_supply : nat32;
-  required_votes : nat32;
 };
+type AgentType = variant { StandardLaunch; GenesisLaunch };
 type ImageData = record { content : blob; name : text; content_type : text };
 type InitialArgs = record {
   agent_canister_id : principal;
@@ -35,7 +52,6 @@ type MinimalProfileinput = record {
   image_content_type : text;
   email_id : text;
 };
-type Pagination = record { end : nat32; start : nat32 };
 type Profileinput = record {
   image_title : text;
   username : text;
@@ -76,7 +92,6 @@ service : (InitialArgs) -> {
   create_agent : (AgentInput) -> (Result);
   create_profile : (MinimalProfileinput) -> (Result);
   get_all_agent : () -> (vec AgentDetails) query;
-  get_all_agent_pagination : (Pagination) -> (vec AgentDetails) query;
   get_user_profile : () -> (Result_1) query;
   make_payment_and_create_agent : (AgentInput) -> (Result);
   search_agent : (text) -> (vec AgentDetails) query;

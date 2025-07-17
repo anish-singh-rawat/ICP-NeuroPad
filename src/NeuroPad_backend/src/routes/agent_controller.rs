@@ -21,12 +21,10 @@ pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Pr
         updated_members.push(principal_id.clone());
     }
 
-    // image upload
     let image_id: Result<String, String> = super::upload_image(
-        // canister_id,
         crate::ImageData {
             content: agent_detail.image_content,
-            name: agent_detail.image_title,
+            name: agent_detail.image_title.clone(),
             content_type: agent_detail.image_content_type,
         },
     )
@@ -59,18 +57,24 @@ pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Pr
 
     let update_agent_detail = crate::AgentCanisterInput {
         agent_name: agent_detail.agent_name.clone(),
-        purpose: agent_detail.purpose.clone(),
-        link_of_document: agent_detail.link_of_document,
-        cool_down_period: agent_detail.cool_down_period,
         members: updated_members,
-        linksandsocials: agent_detail.linksandsocials,
-        required_votes: agent_detail.required_votes,
         image_id: id.clone(),
         image_canister: asset_canister_id,
         token_symbol: agent_detail.token_symbol,
         token_supply: agent_detail.token_supply,
-        parent_agent_canister_id: ic_cdk::api::id(),
-        all_agent_user : vec![],
+        image_title : agent_detail.image_title.clone(),
+        // agent_canister_id: agent_canister_id.clone(),
+        agent_description : agent_detail.agent_description,
+        // agent_associated_ledger : ledger_canister_id.clone(),
+        agent_category : agent_detail.agent_category,
+        agent_type : agent_detail.agent_type,
+        agent_overview : agent_detail.agent_overview,
+        agent_website : agent_detail.agent_website,
+        agent_twitter : agent_detail.agent_twitter,
+        agent_discord : agent_detail.agent_discord,
+        agent_telegram : agent_detail.agent_telegram,
+        token_name : agent_detail.token_name,
+        agent_lunch_time : agent_detail.agent_lunch_time,
     };
 
     // encoding params that is to be passed to new canister

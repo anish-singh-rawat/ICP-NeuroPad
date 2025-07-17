@@ -1,7 +1,8 @@
-// use std::collections::BTreeMap;
-use crate::{with_state, AgentDetails, AgentInput, Pagination};
+use std::time::Duration;
+use crate::{with_state, AgentDetails, AgentInput};
 use candid::{Nat, Principal};
 use ic_cdk::{api, update};
+use ic_cdk_timers::set_timer;
 use icrc_ledger_types::{
     icrc1::{account::Account, transfer::BlockIndex},
     icrc2::transfer_from::{TransferFromArgs, TransferFromError},
@@ -13,29 +14,6 @@ use ic_cdk::query;
 use super::create_agent;
 
 #[query(guard = prevent_anonymous)]
-fn get_all_agent_pagination(page_data: Pagination) -> Vec<AgentDetails> {
-    let mut agents: Vec<AgentDetails> = Vec::new();
-    with_state(|state| {
-        for y in state.agent_details.iter() {
-            agents.push(y.1);
-        }
-    });
-    let ending = agents.len();
-    if ending == 0 {
-        return agents;
-    }
-    let start = page_data.start as usize;
-    let end = page_data.end as usize;
-    if start < ending {
-        let end = end.min(ending);
-        return agents[start..end].to_vec();
-    }
-    Vec::new()
-}
-
-
-
-#[query(guard = prevent_anonymous)]
 fn get_all_agent() -> Vec<AgentDetails> {
     let mut agents: Vec<AgentDetails> = Vec::new();
     with_state(|state| {
@@ -43,11 +21,9 @@ fn get_all_agent() -> Vec<AgentDetails> {
             agents.push(y.1);
         }
     });
-    return  agents;
+    return agents;
 }
 
-
-// ledger handlers
 async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, String> {
     let canister_meta_data = with_state(|state| state.canister_data.get(&0));
 
@@ -85,17 +61,21 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
 }
 
 #[update(guard = prevent_anonymous)]
-async fn make_payment_and_create_agent(agent_details:AgentInput)->Result<String, String> {
+async fn make_payment_and_create_agent(agent_details: AgentInput) -> Result<String, String> {
     let required_balance: Nat = Nat::from(10_000_000u64);
     let result: Result<Nat, String> = transfer(required_balance, api::caller()).await;
     match result {
         Err(error) => Err(error),
         Ok(_) => {
-            let agent_response: Result<String, String> = create_agent(agent_details).await;
-            match agent_response {
-                Err(error) => Err(error),
-                Ok(response) => Ok(response),
-            }
+           let agent_clone = agent_details.clone();
+
+            set_timer(Duration::from_nanos(agent_details.agent_lunch_time), move || {
+                ic_cdk::spawn(async move {
+                    let _ = create_agent(agent_clone).await;
+                });
+            });
+
+            Ok("Payment successful, agent will be created at the lunch time.".to_string())
         }
     }
 }

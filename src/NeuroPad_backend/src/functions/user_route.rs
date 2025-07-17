@@ -187,8 +187,22 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     let agent_details = AgentDetails {
         agent_canister_id: agent_canister_id.clone(),
         agent_name: agent_detail.agent_name,
-        agnet_desc: agent_detail.agent_desc,
-        agent_associated_ledger : agent_detail.agent_associated_ledger,
+        image_title: agent_detail.image_title,
+        agent_description : agent_detail.agent_description,
+        agent_associated_ledger : ledger_canister_id.clone(),
+        agent_category : agent_detail.agent_category,
+        agent_type : agent_detail.agent_type,
+        agent_overview : agent_detail.agent_overview,
+        members : agent_detail.members,
+        token_symbol : agent_detail.token_symbol,
+        token_supply : agent_detail.token_supply,
+        image_id : agent_detail.image_id,
+        agent_website : agent_detail.agent_website,
+        agent_twitter : agent_detail.agent_twitter,
+        agent_discord : agent_detail.agent_discord,
+        agent_telegram : agent_detail.agent_telegram,
+        token_name : agent_detail.token_name,
+        agent_lunch_time : agent_detail.agent_lunch_time,
     };
 
     with_state(|state| {

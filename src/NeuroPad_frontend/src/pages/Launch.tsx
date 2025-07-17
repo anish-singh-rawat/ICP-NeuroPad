@@ -22,6 +22,7 @@ import {
   Brain,
   Settings,
   Star,
+  Coins,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -37,7 +38,7 @@ interface FormData {
   tokenName: string;
   tokenSymbol: string;
   totalSupply: string;
-  minimumCap: string;
+  tokenImage: File | null;
   tokenomicsProposal: string;
   launchDate: string;
   category: string;
@@ -73,7 +74,7 @@ export default function Launch() {
     tokenName: "",
     tokenSymbol: "",
     totalSupply: "",
-    minimumCap: "",
+    tokenImage: null,
     tokenomicsProposal: "",
     launchDate: "",
     category: "",
@@ -152,7 +153,7 @@ export default function Launch() {
           formData.tokenName &&
           formData.tokenSymbol &&
           formData.totalSupply &&
-          formData.minimumCap
+          formData.tokenImage
         );
       case 4:
         return formData.tokenomicsProposal;
@@ -241,7 +242,7 @@ export default function Launch() {
                             ? "bg-neuro-500 border-neuro-500 text-white"
                             : isActive
                               ? "border-neuro-500 bg-neuro-50 dark:bg-neuro-950 text-neuro-500"
-                              : "border-muted-foreground/30 bg-muted text-muted-foreground",
+                              : "border-muted-foreground/30 bg-muted text-muted-foreground"
                         )}
                       >
                         {isCompleted ? (
@@ -256,7 +257,7 @@ export default function Launch() {
                             "font-medium text-sm",
                             isActive
                               ? "text-foreground"
-                              : "text-muted-foreground",
+                              : "text-muted-foreground"
                           )}
                         >
                           {step.title}
@@ -272,7 +273,7 @@ export default function Launch() {
                           "absolute top-6 left-1/2 w-full h-0.5 -translate-y-1/2 transition-colors duration-300",
                           isCompleted
                             ? "bg-neuro-500"
-                            : "bg-muted-foreground/30",
+                            : "bg-muted-foreground/30"
                         )}
                         style={{ left: "50%", width: "calc(100% - 3rem)" }}
                       />
@@ -314,11 +315,11 @@ export default function Launch() {
                           onClick={() =>
                             updateFormData("launchType", "genesis")
                           }
-                           className={cn(
+                          className={cn(
                             "p-6 border-2 rounded-xl cursor-pointer transition-all duration-300",
                             formData.launchType === "genesis"
                               ? "border-neuro-500 bg-neuro-50/50"
-                              : "border-border",
+                              : "border-border"
                           )}
                         >
                           <div className="flex items-center space-x-3 mb-4">
@@ -388,11 +389,11 @@ export default function Launch() {
                           onClick={() =>
                             updateFormData("launchType", "standard")
                           }
-                           className={cn(
+                          className={cn(
                             "p-6 border-2 rounded-xl cursor-pointer transition-all duration-300",
                             formData.launchType === "standard"
                               ? "border-neuro-500 bg-neuro-50/50"
-                              : "border-border",
+                              : "border-border"
                           )}
                         >
                           <div className="flex items-center space-x-3 mb-4">
@@ -617,7 +618,7 @@ export default function Launch() {
                               onChange={(e) =>
                                 updateFormData(
                                   "tokenSymbol",
-                                  e.target.value.toUpperCase(),
+                                  e.target.value.toUpperCase()
                                 )
                               }
                               className="mt-1"
@@ -641,20 +642,41 @@ export default function Launch() {
                             />
                           </div>
 
-                          <div>
-                            <Label htmlFor="minimumCap">
-                              Minimum Cap (NeuroPad) *
-                            </Label>
-                            <Input
-                              id="minimumCap"
-                              type="number"
-                              placeholder="e.g., 50,000"
-                              value={formData.minimumCap}
-                              onChange={(e) =>
-                                updateFormData("minimumCap", e.target.value)
-                              }
-                              className="mt-1"
+                          <Label htmlFor="tokenImage">Token Image *</Label>
+                          <div className="mt-1 border-2 border-dashed border-muted rounded-lg p-6 text-center hover:border-neuro-500 transition-colors cursor-pointer">
+                            <input
+                              type="file"
+                              id="tokenImage"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file: any = e.target.files?.[0] || null;
+                                updateFormData("tokenImage", file);
+                              }}
+                              className="hidden"
                             />
+                            <label
+                              htmlFor="tokenImage"
+                              className="cursor-pointer"
+                            >
+                              {formData.tokenImage ? (
+                                <div className="flex items-center justify-center space-x-2">
+                                  <Coins className="w-6 h-6 text-neuro-500" />
+                                  <span className="text-sm font-medium">
+                                    {formData.tokenImage.name}
+                                  </span>
+                                </div>
+                              ) : (
+                                <>
+                                  <Coins className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                                  <p className="text-sm text-muted-foreground">
+                                    Click to upload token image
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    PNG, JPG up to 2MB
+                                  </p>
+                                </>
+                              )}
+                            </label>
                           </div>
                         </div>
                       </div>
@@ -730,7 +752,7 @@ export default function Launch() {
                                 <div
                                   className={cn(
                                     "w-4 h-4 rounded-full",
-                                    item.color,
+                                    item.color
                                   )}
                                 />
                                 <span className="text-sm font-medium flex-1">
@@ -884,12 +906,10 @@ export default function Launch() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
-                                Minimum Cap:
+                                Token Image
                               </span>
                               <span>
-                                {formData.minimumCap
-                                  ? `${parseInt(formData.minimumCap).toLocaleString()} NPT`
-                                  : "—"}
+                                {formData.tokenImage?.name ? "✓ Uploaded" : "—"}
                               </span>
                             </div>
                             {formData.launchType === "genesis" && (
@@ -900,7 +920,7 @@ export default function Launch() {
                                 <span>
                                   {formData.launchDate
                                     ? new Date(
-                                        formData.launchDate,
+                                        formData.launchDate
                                       ).toLocaleString()
                                     : "—"}
                                 </span>

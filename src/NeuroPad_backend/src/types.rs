@@ -561,48 +561,74 @@ pub struct ICRC1LedgerInitArgs {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
+pub enum AgentType {
+    GenesisLaunch,
+    StandardLaunch
+}
+
+#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentInput {
     pub agent_name: String,
-    pub agent_desc: String,
-    pub purpose: String,
-    pub link_of_document: String,
-    pub cool_down_period: u32,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
     pub members: Vec<Principal>,
-    pub linksandsocials: Vec<String>,
-    pub required_votes: u32,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub image_title : String,
+    pub agent_discord : String,
+    pub agent_telegram : String,
     pub token_name: String,
     pub token_symbol: String,
     pub token_supply: u32,
+    pub agent_description: String,
     pub image_id: String,
     pub image_content: ByteBuf,
-    pub image_title: String,
     pub image_content_type: String,
-    pub agent_associated_ledger: Principal
+    pub agent_lunch_time : u64,
 }
 
     #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentCanisterInput {
     pub agent_name: String,
-    pub purpose: String,
-    pub link_of_document: String,
-    pub cool_down_period: u32,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
     pub members: Vec<Principal>,
-    pub linksandsocials: Vec<String>,
-    pub required_votes: u32,
     pub token_symbol: String,
     pub token_supply: u32,
+    pub image_title : String,
     pub image_id: String,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub agent_discord : String,
+    pub agent_telegram : String,
+    pub token_name: String,
     pub image_canister: Principal,
-    pub parent_agent_canister_id: Principal,
-    pub all_agent_user : Vec<Principal>,
+    pub agent_description: String,
+    pub agent_lunch_time : u64,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
 pub struct AgentDetails {
     pub agent_name: String,
-    pub agnet_desc: String,
     pub agent_canister_id: Principal,
     pub agent_associated_ledger: Principal,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
+    pub members: Vec<Principal>,
+    pub token_symbol: String,
+    pub token_supply: u32,
+    pub image_id: String,
+    pub image_title : String,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub agent_discord : String,
+    pub agent_telegram : String,
+    pub token_name: String,
+    pub agent_description: String,
+    pub agent_lunch_time : u64,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
@@ -670,12 +696,6 @@ pub struct ReplyCommentData {
 #[derive(CandidType, Serialize, Deserialize, Clone)]
 pub struct LedgerCanisterId {
     pub id: Principal,
-}
-
-#[derive(CandidType, Serialize, Deserialize)]
-pub struct Pagination {
-    pub start: u32,
-    pub end: u32,
 }
 
 #[derive(CandidType, Serialize, Deserialize)]
