@@ -708,6 +708,7 @@ pub struct InitialArgs {
     pub payment_recipient: Principal, 
     pub ic_asset_canister_id: Principal,
     pub agent_canister_id: Principal,
+    pub neuropad_ledger_id: Principal,
 }
 
 // LEDGER PARAMS
@@ -728,6 +729,7 @@ pub struct CanisterData {
     pub ic_asset_canister: Principal,
     pub agent_canister: Principal,
     pub paymeny_recipient: Principal,
+    pub neuropad_ledger_id: Principal,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Debug)]

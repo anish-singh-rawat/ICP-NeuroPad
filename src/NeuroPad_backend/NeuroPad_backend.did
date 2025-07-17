@@ -43,6 +43,7 @@ type ImageData = record { content : blob; name : text; content_type : text };
 type InitialArgs = record {
   agent_canister_id : principal;
   ic_asset_canister_id : principal;
+  neuropad_ledger_id : principal;
   payment_recipient : principal;
 };
 type MinimalProfileinput = record {

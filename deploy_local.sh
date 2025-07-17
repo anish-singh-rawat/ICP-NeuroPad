@@ -52,9 +52,9 @@ RECIEVER="kws6j-lg7qz-4hnac-saj7i-l2i7g-i2rnx-zaby7-yvn5r-ggp37-ebev6-aae"
 PRO=$(dfx --identity minter identity get-principal) # rmehg-adw5r-6trpq-epk4r-tyl4c-dd2u4-erbw4-kcjzr-rrjpf-dfvi2-oae
 Anish=$(dfx --identity Anish identity get-principal)  # yxtej-lmfuu-rp3yv-xzu2h-6q43c-7iast-yiwff-z552q-6ugas-pyd6b-fae
 
-TOKEN_SYMBOL=TOK
-TOKEN_NAME="AGENT_TOKEN"
-TRANSFER_FEE=1000
+TOKEN_SYMBOL=NPD
+TOKEN_NAME="NEUROPED"
+TRANSFER_FEE=0
 PRE_MINTED_TOKENS=100000000000
 DIFFERENT=20000000
 echo $RECIEVER
@@ -82,6 +82,7 @@ record {
 })"
 
 NEUROPAD_BACKEND_ID=$(dfx canister id NeuroPad_backend)
+NEUROPAD_TOKEN=$(dfx canister id icrc1_ledger_canister)
 
 
 
@@ -108,7 +109,7 @@ dfx deploy agent_canister --argument "(record {
 
 
 
-dfx deploy NeuroPad_backend --argument "(record { payment_recipient = principal \"${RECIEVER}\"; ic_asset_canister_id = principal \"${ASSET_CANISTER_ID}\"; agent_canister_id = principal \"${AGENT_CANISTER_ID}\"; })"
+dfx deploy NeuroPad_backend --argument "(record { payment_recipient = principal \"${RECIEVER}\"; ic_asset_canister_id = principal \"${ASSET_CANISTER_ID}\"; agent_canister_id = principal \"${AGENT_CANISTER_ID}\"; neuropad_ledger_id = principal \"${NEUROPAD_TOKEN}\"; })"
 
  dfx deploy ic_asset_handler
  

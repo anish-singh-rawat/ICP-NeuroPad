@@ -34,6 +34,7 @@ async fn init(args: InitialArgs) {
                     ic_asset_canister: args.ic_asset_canister_id,
                     agent_canister: args.agent_canister_id,
                     paymeny_recipient: args.payment_recipient,
+                    neuropad_ledger_id: args.neuropad_ledger_id,
                 },
             );
         }

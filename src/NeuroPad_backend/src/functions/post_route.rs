@@ -31,6 +31,10 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
         Some(val) => val.paymeny_recipient,
         None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
     };
+    let neuropad_ledger_id = match canister_meta_data {
+        Some(val) => val.neuropad_ledger_id,
+        None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
+    };
 
     let transfer_args = TransferFromArgs {
         amount: tokens,
@@ -49,8 +53,7 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
     };
 
     ic_cdk::call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(
-        Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai")
-            .expect("Could not decode the principal if ICP ledger."),
+        neuropad_ledger_id,
         "icrc2_transfer_from",
         (transfer_args,),
     )
