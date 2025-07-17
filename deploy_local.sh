@@ -86,22 +86,27 @@ NEUROPAD_TOKEN=$(dfx canister id icrc1_ledger_canister)
 
 
 
-dfx deploy agent_canister --argument "(record {
-    parent_agent_canister_id = principal \"${NEUROPAD_BACKEND_ID}\";
-    agent_name = \"Sample AGENT\";
-    token_symbol = \"BUNNU\";
-    token_supply = 12;
-    purpose = \"To manage community projects\";
-    link_of_document = \"https://example.com/charter.pdf\";
-    cool_down_period = 7;
+dfx deploy agent_canister --argument '(record {
+    agent_name = "Sample AGENT";
+    agent_category = "Community";
+    agent_type = variant { StandardLaunch };
+    agent_overview = "A platform for managing community projects.";
     members = vec {
-        principal \"aaaaa-aa\";
+        principal "aaaaa-aa";
     };
-    tokenissuer = \"sample_token_issuer\";
-    required_votes = 100;
-    image_id = \"1\";
-    image_canister = principal \"aaaaa-aa\";
-})"
+    agent_website = "https://agentwebsite.com";
+    agent_twitter = "https://twitter.com/sampleagent";
+    members_count = 1;
+    agent_discord = "https://discord.gg/sample";
+    agent_telegram = "https://t.me/sampleagent";
+    token_name = "Bunny Token";
+    token_symbol = "BUNNU";
+    image_canister = principal "aaaaa-aa";
+    token_supply = 12;
+    agent_description = "An agent focused on helping community initiatives.";
+    image_id = "1";
+    agent_lunch_time = 1723916400000000000;  // example timestamp in nanoseconds
+})'
 
 
 

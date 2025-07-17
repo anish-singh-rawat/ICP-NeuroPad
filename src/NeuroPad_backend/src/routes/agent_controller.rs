@@ -62,10 +62,7 @@ pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Pr
         image_canister: asset_canister_id,
         token_symbol: agent_detail.token_symbol,
         token_supply: agent_detail.token_supply,
-        image_title : agent_detail.image_title.clone(),
-        // agent_canister_id: agent_canister_id.clone(),
         agent_description : agent_detail.agent_description,
-        // agent_associated_ledger : ledger_canister_id.clone(),
         agent_category : agent_detail.agent_category,
         agent_type : agent_detail.agent_type,
         agent_overview : agent_detail.agent_overview,
@@ -75,6 +72,7 @@ pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Pr
         agent_telegram : agent_detail.agent_telegram,
         token_name : agent_detail.token_name,
         agent_lunch_time : agent_detail.agent_lunch_time,
+        members_count : agent_detail.members.len() as u32,
     };
 
     // encoding params that is to be passed to new canister
@@ -120,7 +118,6 @@ pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Pr
     let arg1 = InstallCodeArgument {
         mode: CanisterInstallMode::Install,
         canister_id: canister_id_principal,
-        // wasm_module: vec![],
         wasm_module: wasm_module.clone(),
         arg: agent_detail_bytes,
     };

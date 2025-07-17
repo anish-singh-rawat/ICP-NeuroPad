@@ -580,9 +580,11 @@ pub struct AgentInput {
     pub image_content: ByteBuf,
     pub image_content_type: String,
     pub agent_lunch_time : u64,
+    pub image_canister: Principal,
+    pub members_count: u32,
 }
 
-    #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
+#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentCanisterInput {
     pub agent_name: String,
     pub agent_category : String,
@@ -591,7 +593,6 @@ pub struct AgentCanisterInput {
     pub members: Vec<Principal>,
     pub token_symbol: String,
     pub token_supply: u32,
-    pub image_title : String,
     pub image_id: String,
     pub agent_website : String,
     pub agent_twitter : String,
@@ -601,6 +602,7 @@ pub struct AgentCanisterInput {
     pub image_canister: Principal,
     pub agent_description: String,
     pub agent_lunch_time : u64,
+    pub members_count: u32,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]

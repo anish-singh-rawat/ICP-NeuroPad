@@ -19,6 +19,7 @@ type AgentDetails = record {
   token_supply : nat32;
 };
 type AgentInput = record {
+  image_canister : principal;
   members : vec principal;
   image_title : text;
   token_symbol : text;
@@ -33,6 +34,7 @@ type AgentInput = record {
   agent_lunch_time : nat64;
   agent_website : text;
   image_content_type : text;
+  members_count : nat32;
   agent_overview : text;
   agent_discord : text;
   token_name : text;

@@ -1,6 +1,6 @@
 mod types;
 use ic_cdk::{export_candid, init};
-use std::{cell::RefCell, collections::HashSet};
+use std::cell::RefCell;
 pub mod proposal_route;
 mod state_handler;
 use state_handler::State;
@@ -22,34 +22,27 @@ pub fn with_state<R>(f: impl FnOnce(&mut State) -> R) -> R {
 }
 
 #[init]
-async fn init(agent_input: AgentCreationInput) {
-    let mut unique_members: HashSet<Principal> = HashSet::new();
-    
-    for member in agent_input.members.iter() {
-        unique_members.insert(*member);
-    }
-
-    let all_agent_user: Vec<Principal> = unique_members.into_iter().collect();
-    
+async fn init(agent_input: AgentCreationInput) {    
     let new_agent = AgentDetails {
         agent_id: ic_cdk::api::id(),
         agent_name: agent_input.agent_name,
-        purpose: agent_input.purpose,
         image_canister: agent_input.image_canister,
-        link_of_document: agent_input.link_of_document,
-        cool_down_period: agent_input.cool_down_period,
         members: agent_input.members.clone(),
         image_id: agent_input.image_id,
         members_count: agent_input.members.len() as u32,
-        proposals_count: 0,
-        proposal_ids: Vec::new(),
-        token_ledger_id: LedgerCanisterId {
-            id: Principal::anonymous(),
-        },
-        total_tokens: agent_input.token_supply,
-        agent_canister_id: agent_input.parent_agent_canister_id,
+        agent_category : agent_input.agent_category,
+        agent_type : agent_input.agent_type,
+        agent_overview : agent_input.agent_overview,
+        agent_website : agent_input.agent_website,
+        agent_twitter : agent_input.agent_twitter,
+        agent_discord : agent_input.agent_discord,
+        agent_telegram : agent_input.agent_telegram,
+        token_name : agent_input.token_name,
+        token_supply : agent_input.token_supply,
+        agent_description : agent_input.agent_description,
+        agent_lunch_time : agent_input.agent_lunch_time,
         token_symbol: agent_input.token_symbol,
-        all_agent_user : all_agent_user,
+        token_ledger_id: Principal::anonymous(),
     };
 
     with_state(|state| {
