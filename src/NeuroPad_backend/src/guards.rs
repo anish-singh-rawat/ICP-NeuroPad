@@ -20,18 +20,3 @@ pub fn check_for_user_guard(user: &Principal) -> Result<(), String> {
         return Err(String::from(crate::utils::USER_DOES_NOT_EXIST));
     }
 }
-
-
-pub fn guard_child_canister_only() -> Result<(), String> {
-    prevent_anonymous()?;
-    with_state(|state| 
-    match state.canister_ids.get(&api::caller()) {
-        Some(_) =>{
-           return Ok(());
-        }
-        None =>{
-            return Err(String::from("Only a sub-canister is permitted to perform this task"))
-        }
-    }
-    )
-}
