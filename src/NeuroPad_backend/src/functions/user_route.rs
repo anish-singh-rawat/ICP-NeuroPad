@@ -213,12 +213,7 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
             return Err(format!("{}{}", crate::utils::INTER_CANISTER_FAILED, err));
         }
     }
-
-    with_state(|state| {
-        let new_canister_id = agent_canister_id.clone();
-        state.canister_ids.insert(new_canister_id, new_canister_id)
-    });
-
+    
     with_state(|state| {
         if let Some(profile) = state.user_profile.get(&api::caller()) {
             let mut updated_profile = profile.clone();

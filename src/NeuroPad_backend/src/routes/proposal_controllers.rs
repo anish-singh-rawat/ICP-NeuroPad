@@ -5,7 +5,7 @@ pub fn add_proposal_controller(
     state: &mut State,
     args: ProposalValueStore,
 ) -> Result<String, String> {
-    state.proposal_store.insert(args.proposal_id.clone(), args);
+    state.token_proposal_store.insert(args.proposal_id.clone(), args);
 
     Ok(String::from("Proposal added"))
 }
@@ -17,7 +17,7 @@ pub fn get_proposal_controller(
 ) -> Vec<ProposalValueStore> {
     let mut all_proposals: Vec<ProposalValueStore> = Vec::new();
 
-    for (_key, proposal) in state.proposal_store.iter() {
+    for (_key, proposal) in state.token_proposal_store.iter() {
         all_proposals.push(proposal);
     }
 
@@ -45,7 +45,7 @@ pub fn get_latest_proposal_controller(
 ) -> Vec<ProposalValueStore> {
     let mut all_proposals: Vec<ProposalValueStore> = Vec::new();
 
-    for (_key, proposal) in state.proposal_store.iter() {
+    for (_key, proposal) in state.token_proposal_store.iter() {
         all_proposals.push(proposal);
     }
 
@@ -75,7 +75,7 @@ pub fn get_my_proposal_controller(
 ) -> Vec<ProposalValueStore> {
     let mut my_proposals: Vec<ProposalValueStore> = Vec::new();
 
-    for (_key, val) in state.proposal_store.iter() {
+    for (_key, val) in state.token_proposal_store.iter() {
         if val.agent_members.contains(&ic_cdk::api::caller()) {
             my_proposals.push(val);
         }
