@@ -14,7 +14,10 @@ import AgentDetail from "./pages/AgentDetail";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
+import About from "./pages/About.jsx";
 import * as React from "react";
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+      <Navbar/>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/explore" element={<Explore />} />
@@ -32,15 +36,15 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/wallet" element={<Wallet />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+           <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Footer/>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
 
-// createRoot(document.getElementById("root")!).render(<App />);
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

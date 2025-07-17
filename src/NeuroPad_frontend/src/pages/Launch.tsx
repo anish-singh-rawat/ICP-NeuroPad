@@ -23,7 +23,6 @@ import {
   Settings,
   Star,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -186,8 +185,6 @@ export default function Launch() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <div className="pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}

@@ -17,12 +17,15 @@ import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import ConnectModal from "./ConnectModal";
 
+
 const navigation = [
   { name: "Home", href: "/", icon: Sparkles },
   { name: "Explore", href: "/explore", icon: Search },
   { name: "Launch", href: "/launch", icon: Rocket },
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+  { name: "About", href: "/about", icon: User },
   { name: "Profile", href: "/profile", icon: User },
+  { name: "Wallet", href: "/wallet", icon: Wallet },
 ];
 
 export default function Navbar() {
@@ -60,7 +63,7 @@ export default function Navbar() {
 
   const isActive = (href: string) => location.pathname === href;
 
-  return (
+    return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}

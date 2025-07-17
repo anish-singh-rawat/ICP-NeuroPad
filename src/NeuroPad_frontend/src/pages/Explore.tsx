@@ -13,7 +13,6 @@ import {
   DollarSign,
   Clock,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -170,8 +169,6 @@ export default function Explore() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       {/* Hero Section */}
       <section className="pt-24 pb-12 bg-gradient-to-br from-background via-background to-neuro-50/10 dark:to-neuro-950/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

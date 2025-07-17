@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { Brain, TrendingUp, Users, Star } from "lucide-react";
 
 export default function AgentDetail() {
@@ -8,8 +7,6 @@ export default function AgentDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       <section className="pt-24 pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
