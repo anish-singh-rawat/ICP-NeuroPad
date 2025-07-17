@@ -73,8 +73,9 @@ async fn make_payment_and_create_agent(agent_details: AgentInput) -> Result<Stri
            let agent_clone = agent_details.clone();
 
             set_timer(Duration::from_nanos(agent_details.agent_lunch_time), move || {
+                ic_cdk::println!("Creating agent with details: {:?}", agent_clone.clone());
                 ic_cdk::spawn(async move {
-                    let _ = create_agent(agent_clone).await;
+                    let _ = create_agent(agent_clone.clone()).await;
                 });
             });
 

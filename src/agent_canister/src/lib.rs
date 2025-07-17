@@ -38,7 +38,6 @@ async fn init(agent_input: AgentCreationInput) {
         image_canister: agent_input.image_canister,
         link_of_document: agent_input.link_of_document,
         cool_down_period: agent_input.cool_down_period,
-        linksandsocials: agent_input.linksandsocials,
         members: agent_input.members.clone(),
         image_id: agent_input.image_id,
         members_count: agent_input.members.len() as u32,

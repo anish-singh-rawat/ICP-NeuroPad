@@ -2,7 +2,6 @@ type AgentCreationInput = record {
   image_canister : principal;
   members : vec principal;
   token_symbol : text;
-  linksandsocials : vec text;
   image_id : text;
   agent_name : text;
   parent_agent_canister_id : principal;
@@ -17,7 +16,6 @@ type AgentDetails = record {
   proposals_count : nat32;
   token_ledger_id : LedgerCanisterId;
   token_symbol : text;
-  linksandsocials : vec text;
   all_agent_user : vec principal;
   agent_id : principal;
   agent_canister_id : principal;

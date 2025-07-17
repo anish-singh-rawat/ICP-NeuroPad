@@ -14,13 +14,8 @@ use super::ledger_functions::create_ledger_canister;
 
 #[update(guard=prevent_anonymous)]
 async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
-    // Validate email format
-    if !profile.email_id.contains('@') || !profile.email_id.contains('.') {
-        return Err(String::from(crate::utils::INVALID_EMAIL));
-    }
-    let principal_id = api::caller();
 
-    // Check if the user is already registered
+    let principal_id = api::caller();
     let is_registered = with_state(|state| {
         if state.user_profile.contains_key(&principal_id) {
             return Err(crate::utils::USER_REGISTERED);
@@ -53,7 +48,6 @@ async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> 
 
     let new_profile = UserProfile {
         user_id: principal_id,
-        email_id: profile.email_id,
         profile_img: image_id,
         username: profile.name,
         agent_ids: Vec::new(),
@@ -84,12 +78,8 @@ async fn get_user_profile() -> Result<UserProfile, String> {
 
 #[update(guard = prevent_anonymous)]
 async fn update_profile(
-    // asset_handler_canister_id: String,
     profile: Profileinput,
 ) -> Result<(), String> {
-    if !profile.email_id.contains('@') || !profile.email_id.contains('.') {
-        return Err(String::from(crate::utils::INVALID_EMAIL));
-    }
 
     let principal_id = api::caller();
 
@@ -105,17 +95,6 @@ async fn update_profile(
     if is_registered {
         return Err(String::from(crate::utils::USER_DOES_NOT_EXIST));
     }
-    // let is_registered = with_state(|state| {
-    //     if !state.user_profile.contains_key(&principal_id) {
-    //         return Err("User is not registered".to_string());
-    //     }
-    //     Ok(())
-    // }).is_err();
-
-    // if !is_registered {
-    //     return Err("User dosen't exist ".to_string());
-    // }
-    // Validate email format
 
     let mut image_id: String = profile.profile_img.to_string();
 
@@ -132,13 +111,8 @@ async fn update_profile(
         .map_err(|_err| crate::utils::IMAGE_UPLOAD_FAILED)?;
     }
 
-    // image upload
-
-    // Clone the old profile and update the fields with new information
-
     with_state(|state| {
         let mut new_profile = state.user_profile.get(&principal_id).unwrap().clone();
-        new_profile.email_id = profile.email_id;
         new_profile.profile_img = image_id;
         new_profile.username = profile.username;
         new_profile.description = profile.description;
@@ -152,8 +126,6 @@ async fn update_profile(
     });
 
     Ok(())
-
-    // with_state(|state| routes::update_profile(state, profile.clone()))
 }
 
 #[update]
@@ -312,5 +284,4 @@ pub async fn create_ledger(
 
     create_ledger_canister(ledger_args).await
 
-    // Ok("()".to_string())
 }

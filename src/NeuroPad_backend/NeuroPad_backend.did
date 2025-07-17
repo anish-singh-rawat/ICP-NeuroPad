@@ -51,7 +51,6 @@ type MinimalProfileinput = record {
   name : text;
   image_content : blob;
   image_content_type : text;
-  email_id : text;
 };
 type Profileinput = record {
   image_title : text;
@@ -62,7 +61,6 @@ type Profileinput = record {
   website : text;
   contact_number : text;
   image_content_type : text;
-  email_id : text;
   profile_img : text;
   telegram : text;
   tag_defines : vec text;
@@ -82,7 +80,6 @@ type UserProfile = record {
   website : text;
   join_agent : vec principal;
   contact_number : text;
-  email_id : text;
   profile_img : text;
   telegram : text;
   submitted_proposals : nat64;

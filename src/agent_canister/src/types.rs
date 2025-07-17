@@ -96,7 +96,6 @@ pub struct AgentDetails {
     pub purpose: String,
     pub link_of_document: String,
     pub cool_down_period: u32,
-    pub linksandsocials: Vec<String>,
     pub image_canister: Principal,
     pub image_id: String,
     pub members: Vec<Principal>,

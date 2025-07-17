@@ -465,7 +465,6 @@ pub struct CanisterInfoResponse {
 #[derive(Clone, CandidType, PartialEq, Debug, Serialize, Deserialize)]
 pub struct UserProfile {
     pub user_id: Principal,
-    pub email_id: String,
     pub profile_img: String,
     pub image_canister: Principal,
     pub username: String,
@@ -484,7 +483,6 @@ pub struct UserProfile {
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
 pub struct Profileinput {
-    pub email_id: String,
     pub profile_img: String,
     pub username: String,
     pub description: String,
@@ -503,11 +501,7 @@ pub struct Profileinput {
 // basic profile
 #[derive(Clone, CandidType, Serialize, Deserialize)]
 pub struct MinimalProfileinput {
-    pub email_id: String,
-    // pub profile_img: String,
     pub name: String,
-
-    // image data
     pub image_content: ByteBuf,
     pub image_title: String,
     pub image_content_type: String,
@@ -610,7 +604,7 @@ pub struct AgentCanisterInput {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct AgentDetails {
+pub struct  AgentDetails {
     pub agent_name: String,
     pub agent_canister_id: Principal,
     pub agent_associated_ledger: Principal,

@@ -98,10 +98,6 @@ dfx deploy agent_canister --argument "(record {
         principal \"aaaaa-aa\";
     };
     tokenissuer = \"sample_token_issuer\";
-    linksandsocials = vec {
-        \"https://twitter.com/sampleagent\";
-        \"https://discord.gg/sampleagent\";
-    };
     required_votes = 100;
     image_id = \"1\";
     image_canister = principal \"aaaaa-aa\";
