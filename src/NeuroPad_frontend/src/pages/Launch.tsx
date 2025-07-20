@@ -30,6 +30,9 @@ import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
 import { cn } from "../lib/utils";
+import { Principal } from "@dfinity/principal";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import {NeuroPad_backend } from "../../../declarations/NeuroPad_backend";
 
 interface FormData {
   launchType: "genesis" | "standard" | "";
@@ -131,14 +134,61 @@ export default function Launch() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = async () => {
+    const handleSubmit = async () => {
+    if (!formData.tokenImage) {
+      alert("Please select an image first.");
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    // Handle successful submission
-    alert("Agent launch request submitted successfully!");
+    try {
+      const BACKEND_CANISTER_ID : any = process.env.CANISTER_ID_IC_ASSET_HANDLER; 
+
+      console.log("Backend canister ID:", BACKEND_CANISTER_ID);
+
+      const buf = await formData.tokenImage.arrayBuffer();
+      const imageBytes = Array.from(new Uint8Array(buf));
+
+      const payload = {
+        agent_name:           formData.agentName,
+        agent_category:       "Testing",
+        agent_type:           formData.launchType === "genesis" ? { GenesisLaunch: null } : { StandardLaunch: null },
+        agent_overview:       formData.agentOverview,
+        members:              [],
+        agent_website:        formData.website,
+        agent_twitter:        formData.twitter,
+        image_title:          formData.tokenImage.name,
+        agent_discord:        formData.discord,
+        agent_telegram:       formData.telegram,
+        token_name:           formData.tokenName,
+        token_symbol:         formData.tokenSymbol,
+        token_supply:         Number(formData.totalSupply),
+        agent_description:    formData.agentOverview,
+        image_id:             formData.tokenImage.name,
+        image_content:        imageBytes,               // ByteBuf
+        image_content_type:   formData.tokenImage.type, // e.g. "image/png"
+        // Convert launchDate ISO string to nanoseconds since epoch
+        agent_lunch_time:     1000n,
+        image_canister:       Principal.fromText(BACKEND_CANISTER_ID),
+        members_count:        1,
+      };
+
+      console.log("Payload →", payload);
+      const result: any = await NeuroPad_backend.make_payment_and_create_agent(payload);
+      console.log("Canister response:", result);
+
+      if(result.Ok){
+        alert("✅ " + result.Ok);
+      }
+
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to submit: " + (err.message || err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   const isStepValid = (step: number) => {
     switch (step) {
@@ -969,7 +1019,7 @@ export default function Launch() {
 
                         <Button
                           onClick={handleSubmit}
-                          disabled={!isStepValid(5) || isSubmitting}
+                          // disabled={!isStepValid(5) || isSubmitting}
                           className="w-full bg-neuro-gradient hover:bg-neuro-gradient-dark text-white h-12 text-lg"
                         >
                           {isSubmitting ? (

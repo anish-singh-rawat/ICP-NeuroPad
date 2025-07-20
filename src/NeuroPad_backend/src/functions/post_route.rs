@@ -63,13 +63,9 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
     .map_err(|e| format!("ledger transfer error {:?}", e))
 }
 
-#[update(guard = prevent_anonymous)]
+#[update]
 async fn make_payment_and_create_agent(agent_details: AgentInput) -> Result<String, String> {
-    // let required_balance: Nat = Nat::from(10_000_000u64);
-    // let result: Result<Nat, String> = transfer(required_balance, api::caller()).await;
-    // match result {
-    //     Err(error) => Err(error),
-    //     Ok(_) => {
+
            let agent_clone = agent_details.clone();
 
             set_timer(Duration::from_nanos(agent_details.agent_lunch_time), move || {
@@ -81,8 +77,7 @@ async fn make_payment_and_create_agent(agent_details: AgentInput) -> Result<Stri
 
             Ok("Payment successful, agent will be created at the lunch time.".to_string())
         }
-//     }
-// }
+
 
 #[query(guard = prevent_anonymous)]
 fn search_agent(agent_name: String) -> Vec<AgentDetails> {
