@@ -16,6 +16,7 @@ import {
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 import ConnectModal from "./ConnectModal";
+import { useAuth } from "../auth/useAuthClient";
 
 
 const navigation = [
@@ -25,7 +26,6 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { name: "About", href: "/about", icon: User },
   { name: "Profile", href: "/profile", icon: User },
-  { name: "Wallet", href: "/wallet", icon: Wallet },
 ];
 
 export default function Navbar() {
@@ -33,6 +33,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const location = useLocation();
+    const { principal, backendActor, isAuthenticated, login } = useAuth();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -121,9 +122,22 @@ export default function Navbar() {
           </div>
 
           {/* Right side actions */}
+          
           <div className="flex items-center space-x-2">
             {/* Wallet Button */}
+            {
+              isAuthenticated ? 
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsConnectModalOpen(true)}
+              className="hidden sm:flex items-center space-x-2 glass dark:glass-dark border-white/20 hover:bg-white/10"
+            >
+              <Wallet className="w-4 h-4" />
+              <span>Connected</span>
+            </Button>
+            : 
+             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsConnectModalOpen(true)}
@@ -132,6 +146,7 @@ export default function Navbar() {
               <Wallet className="w-4 h-4" />
               <span>Connect</span>
             </Button>
+            }
 
             {/* Theme Toggle */}
             <motion.button
@@ -196,6 +211,8 @@ export default function Navbar() {
               </AnimatePresence>
             </motion.button>
           </div>
+
+
         </div>
       </div>
 

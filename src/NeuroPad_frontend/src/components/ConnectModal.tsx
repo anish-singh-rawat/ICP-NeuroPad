@@ -15,6 +15,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useAuth }  from "../auth/useAuthClient.jsx"; 
 
 interface ConnectModalProps {
   isOpen: boolean;
@@ -44,21 +45,23 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
     discord: "",
     walletAddress: "",
   });
+  const { principal, backendActor, isAuthenticated, login } = useAuth();
 
   const updateFormData = (field: keyof UserFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleWalletConnect = async () => {
-    setIsConnecting(true);
-    // Simulate wallet connection
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setFormData((prev) => ({
-      ...prev,
-      walletAddress: "0x742d35Cc6532C02bb16E2a8E0B4E5a6E2C5C0C5E",
-    }));
-    setIsConnecting(false);
-    setStep(2);
+    try {
+       setIsConnecting(true);
+      await login("ii");
+      window.location.reload();
+      setStep(2);
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   const handleSubmit = async () => {

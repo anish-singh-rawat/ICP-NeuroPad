@@ -2,7 +2,7 @@ use crate::routes::{create_agent_canister, create_new_ledger_canister, upload_im
 use crate::types::{AgentInput, Profileinput, UserProfile};
 use crate::{
     guards::*, Account, ArchiveOptions,
-    FeatureFlags, InitArgs, LedgerArg, LedgerCanisterId, MinimalProfileinput,
+    FeatureFlags, InitArgs, LedgerArg, MinimalProfileinput,
 };
 use crate::{routes, with_state, AgentDetails, ImageData};
 use candid::{Nat, Principal};
@@ -12,7 +12,7 @@ use ic_cdk::{query, update};
 use super::canister_functions::call_inter_canister;
 use super::ledger_functions::create_ledger_canister;
 
-#[update(guard=prevent_anonymous)]
+#[update]
 async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
 
     let principal_id = api::caller();
@@ -128,7 +128,6 @@ async fn update_profile(
     Ok(())
 }
 
-#[update]
 pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     let principal_id = ic_cdk::api::caller();
     let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
@@ -185,11 +184,9 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
 
     user_profile_detail.agent_ids.push(agent_canister_id.clone());
 
-    match call_inter_canister::<LedgerCanisterId, ()>(
+    match call_inter_canister::<Principal, ()>(
         "add_ledger_canister_id",
-        LedgerCanisterId {
-            id: ledger_canister_id,
-        },
+        ledger_canister_id,
         agent_canister_id,
     )
     .await

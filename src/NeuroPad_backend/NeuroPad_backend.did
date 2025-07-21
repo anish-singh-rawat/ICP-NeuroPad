@@ -89,7 +89,6 @@ type UserProfile = record {
 };
 service : (InitialArgs) -> {
   check_user_existance : () -> (Result) query;
-  create_agent : (AgentInput) -> (Result);
   create_profile : (MinimalProfileinput) -> (Result);
   get_all_agent : () -> (vec AgentDetails) query;
   get_user_profile : () -> (Result_1) query;

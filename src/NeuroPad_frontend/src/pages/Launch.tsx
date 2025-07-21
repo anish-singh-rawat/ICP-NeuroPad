@@ -154,7 +154,7 @@ export default function Launch() {
         agent_category:       "Testing",
         agent_type:           formData.launchType === "genesis" ? { GenesisLaunch: null } : { StandardLaunch: null },
         agent_overview:       formData.agentOverview,
-        members:              [],
+        members:              [Principal.fromText(BACKEND_CANISTER_ID)],
         agent_website:        formData.website,
         agent_twitter:        formData.twitter,
         image_title:          formData.tokenImage.name,
@@ -165,9 +165,8 @@ export default function Launch() {
         token_supply:         Number(formData.totalSupply),
         agent_description:    formData.agentOverview,
         image_id:             formData.tokenImage.name,
-        image_content:        imageBytes,               // ByteBuf
-        image_content_type:   formData.tokenImage.type, // e.g. "image/png"
-        // Convert launchDate ISO string to nanoseconds since epoch
+        image_content:        imageBytes,              
+        image_content_type:   formData.tokenImage.type, 
         agent_lunch_time:     1000n,
         image_canister:       Principal.fromText(BACKEND_CANISTER_ID),
         members_count:        1,
