@@ -48,52 +48,26 @@ type InitialArgs = record {
   neuropad_ledger_id : principal;
   payment_recipient : principal;
 };
-type MinimalProfileinput = record {
-  image_title : text;
-  name : text;
-  image_content : blob;
-  image_content_type : text;
-};
 type Profileinput = record {
-  image_title : text;
   username : text;
   twitter_id : text;
-  image_content : blob;
-  description : text;
   website : text;
-  contact_number : text;
-  image_content_type : text;
-  profile_img : text;
-  telegram : text;
-  tag_defines : vec text;
 };
 type Result = variant { Ok : text; Err : text };
-type Result_1 = variant { Ok : UserProfile; Err : text };
-type Result_2 = variant { Ok; Err : text };
+type Result_1 = variant { Ok; Err : text };
+type Result_2 = variant { Ok : UserProfile; Err : text };
 type UserProfile = record {
-  image_canister : principal;
-  post_id : vec text;
   username : text;
   twitter_id : text;
-  agent_ids : vec principal;
-  description : text;
-  post_count : nat32;
   user_id : principal;
   website : text;
-  join_agent : vec principal;
-  contact_number : text;
-  profile_img : text;
-  telegram : text;
-  submitted_proposals : nat64;
-  tag_defines : vec text;
 };
 service : (InitialArgs) -> {
   check_user_existance : () -> (Result) query;
-  create_profile : (MinimalProfileinput) -> (Result);
+  create_user_profile : (Profileinput) -> (Result_1);
   get_all_agent : () -> (vec AgentDetails) query;
-  get_user_profile : () -> (Result_1) query;
+  get_user_profile : () -> (Result_2) query;
   make_payment_and_create_agent : (AgentInput) -> (Result);
   search_agent : (text) -> (vec AgentDetails) query;
-  update_profile : (Profileinput) -> (Result_2);
   upload_image : (ImageData) -> (Result);
 }

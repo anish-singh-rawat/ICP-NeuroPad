@@ -1,10 +1,10 @@
-use crate::routes::{create_agent_canister, create_new_ledger_canister, upload_image};
+use crate::routes::{create_agent_canister, create_new_ledger_canister};
 use crate::types::{AgentInput, Profileinput, UserProfile};
 use crate::{
     guards::*, Account, ArchiveOptions,
-    FeatureFlags, InitArgs, LedgerArg, MinimalProfileinput,
+    FeatureFlags, InitArgs, LedgerArg,
 };
-use crate::{routes, with_state, AgentDetails, ImageData};
+use crate::{routes, with_state, AgentDetails};
 use candid::{Nat, Principal};
 use ic_cdk::api;
 use ic_cdk::{query, update};
@@ -12,64 +12,6 @@ use ic_cdk::{query, update};
 use super::canister_functions::call_inter_canister;
 use super::ledger_functions::create_ledger_canister;
 
-#[update]
-async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
-
-    let principal_id = api::caller();
-    let is_registered = with_state(|state| {
-        if state.user_profile.contains_key(&principal_id) {
-            return Err(crate::utils::USER_REGISTERED);
-        }
-        Ok(())
-    })
-    .is_err();
-    if is_registered {
-        return Err(String::from(crate::utils::USER_REGISTERED));
-    }
-
-    // to upload image
-    let image_id = upload_image(ImageData {
-        content: profile.image_content,
-        name: profile.image_title.clone(),
-        content_type: profile.image_content_type.clone(),
-    })
-    .await
-    .map_err(|err| format!("{}{}", crate::utils::IMAGE_UPLOAD_FAILED, err))?;
-
-    // getting image canister id
-    let asset_canister_id = with_state(|state| {
-        Ok(match state.canister_data.get(&0) {
-            Some(val) => val.ic_asset_canister,
-            None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
-        })
-    })
-    .map_err(|err| format!("Error: {}", err))
-    .unwrap();
-
-    let new_profile = UserProfile {
-        user_id: principal_id,
-        profile_img: image_id,
-        username: profile.name,
-        agent_ids: Vec::new(),
-        post_count: 0,
-        post_id: Vec::new(),
-        description: "".to_string(),
-        tag_defines: Vec::new(),
-        contact_number: "".to_string(),
-        twitter_id: "".to_string(),
-        telegram: "".to_string(),
-        website: "".to_string(),
-        image_canister: asset_canister_id,
-        join_agent :  Vec::new(),
-        submitted_proposals : 0,
-    };
-
-
-    with_state(|state| -> Result<String, String> {
-        state.user_profile.insert(principal_id, new_profile);
-        Ok(String::from(crate::utils::PROFILE_UPDATE_SUCCESS))
-    })
-}
 
 #[query(guard = prevent_anonymous)]
 async fn get_user_profile() -> Result<UserProfile, String> {
@@ -77,52 +19,20 @@ async fn get_user_profile() -> Result<UserProfile, String> {
 }
 
 #[update(guard = prevent_anonymous)]
-async fn update_profile(
+async fn create_user_profile(
     profile: Profileinput,
 ) -> Result<(), String> {
 
     let principal_id = api::caller();
 
-    // Check if the user is already registered
-    let is_registered = with_state(|state| {
-        if !state.user_profile.contains_key(&principal_id) {
-            return Err(String::from(crate::utils::USER_REGISTERED));
-        }
-        Ok(())
-    })
-    .is_err();
-
-    if is_registered {
-        return Err(String::from(crate::utils::USER_DOES_NOT_EXIST));
-    }
-
-    let mut image_id: String = profile.profile_img.to_string();
-
-    if profile.image_title != "na".to_string() {
-        image_id = upload_image(
-            // asset_handler_canister_id,
-            ImageData {
-                content: profile.image_content,
-                name: profile.image_title.clone(),
-                content_type: profile.image_content_type.clone(),
-            },
-        )
-        .await
-        .map_err(|_err| crate::utils::IMAGE_UPLOAD_FAILED)?;
-    }
-
     with_state(|state| {
-        let mut new_profile = state.user_profile.get(&principal_id).unwrap().clone();
-        new_profile.profile_img = image_id;
+        let mut new_profile =  state.user_profile.get(&principal_id).clone().unwrap();
         new_profile.username = profile.username;
-        new_profile.description = profile.description;
-        new_profile.contact_number = profile.contact_number;
         new_profile.twitter_id = profile.twitter_id;
-        new_profile.telegram = profile.telegram;
         new_profile.website = profile.website;
-        new_profile.tag_defines = profile.tag_defines;
+        new_profile.user_id = principal_id.clone();
 
-        state.user_profile.insert(principal_id, new_profile);
+        state.user_profile.insert(principal_id.clone(), new_profile.clone());
     });
 
     Ok(())
@@ -182,7 +92,7 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
             .insert(agent_canister_id.clone(), agent_details)
     });
 
-    user_profile_detail.agent_ids.push(agent_canister_id.clone());
+    // user_profile_detail.agent_ids.push(agent_canister_id.clone());
 
     match call_inter_canister::<Principal, ()>(
         "add_ledger_canister_id",
@@ -200,7 +110,7 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     with_state(|state| {
         if let Some(profile) = state.user_profile.get(&api::caller()) {
             let mut updated_profile = profile.clone();
-            updated_profile.join_agent.push(agent_canister_id.clone());
+            // updated_profile.join_agent.push(agent_canister_id.clone());
             state.user_profile.insert(principal_id, updated_profile);
         }
     });

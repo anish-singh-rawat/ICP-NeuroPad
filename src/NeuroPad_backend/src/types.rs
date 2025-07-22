@@ -40,6 +40,13 @@ pub struct CreateCanisterArgument {
     pub settings: Option<CanisterSettings>,
 }
 
+#[derive(Clone, CandidType, Serialize, Deserialize)]
+pub struct ImageData {
+    pub content: ByteBuf,
+    pub name: String,
+    pub content_type: String,
+}
+
 
 #[derive(
     CandidType, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default,
@@ -465,47 +472,18 @@ pub struct CanisterInfoResponse {
 #[derive(Clone, CandidType, PartialEq, Debug, Serialize, Deserialize)]
 pub struct UserProfile {
     pub user_id: Principal,
-    pub profile_img: String,
-    pub image_canister: Principal,
     pub username: String,
-    pub agent_ids: Vec<Principal>,
-    pub post_count: u32,
-    pub post_id: Vec<String>,
-    pub description: String,
-    pub tag_defines: Vec<String>,
-    pub contact_number: String,
     pub twitter_id: String,
-    pub telegram: String,
     pub website: String,
-    pub join_agent :  Vec<Principal>,
-    pub submitted_proposals : u64,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
 pub struct Profileinput {
-    pub profile_img: String,
     pub username: String,
-    pub description: String,
-    pub contact_number: String,
     pub twitter_id: String,
-    pub telegram: String,
     pub website: String,
-    pub tag_defines: Vec<String>,
-
-    // image data
-    pub image_content: ByteBuf,
-    pub image_title: String,
-    pub image_content_type: String,
 }
 
-// basic profile
-#[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct MinimalProfileinput {
-    pub name: String,
-    pub image_content: ByteBuf,
-    pub image_title: String,
-    pub image_content_type: String,
-}
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub enum MetadataValue {
@@ -663,13 +641,6 @@ pub struct PostInput {
     pub image_content: ByteBuf,
     pub image_title: String,
     pub image_content_type: String,
-}
-
-#[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct ImageData {
-    pub content: ByteBuf,
-    pub name: String,
-    pub content_type: String,
 }
 
 // comment

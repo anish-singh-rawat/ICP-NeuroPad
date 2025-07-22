@@ -18,7 +18,6 @@ import { cn } from "../lib/utils";
 import ConnectModal from "./ConnectModal";
 import { useAuth } from "../auth/useAuthClient";
 
-
 const navigation = [
   { name: "Home", href: "/", icon: Sparkles },
   { name: "Explore", href: "/explore", icon: Search },
@@ -31,14 +30,14 @@ const navigation = [
 export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [shouldOpen, setShouldOpen] = useState(false);
   const location = useLocation();
-    const { principal, backendActor, isAuthenticated, login } = useAuth();
+  const { principal, backendActor, isAuthenticated, checkUser } = useAuth();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
+      "(prefers-color-scheme: dark)"
     ).matches;
     const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
 
@@ -48,6 +47,20 @@ export default function Navbar() {
     } else {
       document.documentElement.classList.remove("dark");
     }
+    const result = checkUser();
+    result
+      .then((res: any) => {
+        if (res.Ok) {
+          setShouldOpen(false);
+          console.log("User is authenticated:", res);
+        } else if(res.Err) {
+          setShouldOpen(true);
+          console.log("User is not authenticated",res);
+        }
+      })
+      .catch((error: any) => {
+        console.error("Error checking user authentication:", error);
+      });
   }, []);
 
   const toggleTheme = () => {
@@ -64,7 +77,7 @@ export default function Navbar() {
 
   const isActive = (href: string) => location.pathname === href;
 
-    return (
+  return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -103,7 +116,7 @@ export default function Navbar() {
                         "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2",
                         isActive(item.href)
                           ? "bg-neuro-500/10 text-neuro-600 dark:text-neuro-400"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
                       <Icon className="w-4 h-4" />
@@ -122,31 +135,30 @@ export default function Navbar() {
           </div>
 
           {/* Right side actions */}
-          
+
           <div className="flex items-center space-x-2">
             {/* Wallet Button */}
-            {
-              isAuthenticated ? 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsConnectModalOpen(true)}
-              className="hidden sm:flex items-center space-x-2 glass dark:glass-dark border-white/20 hover:bg-white/10"
-            >
-              <Wallet className="w-4 h-4" />
-              <span>Connected</span>
-            </Button>
-            : 
-             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsConnectModalOpen(true)}
-              className="hidden sm:flex items-center space-x-2 glass dark:glass-dark border-white/20 hover:bg-white/10"
-            >
-              <Wallet className="w-4 h-4" />
-              <span>Connect</span>
-            </Button>
-            }
+            {isAuthenticated ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShouldOpen(true)}
+                className="hidden sm:flex items-center space-x-2 glass dark:glass-dark border-white/20 hover:bg-white/10"
+              >
+                <Wallet className="w-4 h-4" />
+                <span>Connected</span>
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShouldOpen(true)}
+                className="hidden sm:flex items-center space-x-2 glass dark:glass-dark border-white/20 hover:bg-white/10"
+              >
+                <Wallet className="w-4 h-4" />
+                <span>Connect</span>
+              </Button>
+            )}
 
             {/* Theme Toggle */}
             <motion.button
@@ -211,8 +223,6 @@ export default function Navbar() {
               </AnimatePresence>
             </motion.button>
           </div>
-
-
         </div>
       </div>
 
@@ -241,7 +251,7 @@ export default function Navbar() {
                         "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                         isActive(item.href)
                           ? "bg-neuro-500/10 text-neuro-600 dark:text-neuro-400"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
                       <Icon className="w-4 h-4" />
@@ -257,7 +267,7 @@ export default function Navbar() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setIsConnectModalOpen(true);
+                    setShouldOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
                   className="w-full justify-start glass dark:glass-dark border-white/20"
@@ -273,8 +283,8 @@ export default function Navbar() {
 
       {/* Connect Modal */}
       <ConnectModal
-        isOpen={isConnectModalOpen}
-        onClose={() => setIsConnectModalOpen(false)}
+        isOpen={shouldOpen}
+        onClose={() => setShouldOpen(false)}
       />
     </motion.nav>
   );

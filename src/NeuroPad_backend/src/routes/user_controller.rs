@@ -13,7 +13,7 @@ pub fn get_user_profile(state: &State) -> Result<UserProfile, String> {
         Err("Anonymous principal not allowed to make calls.".to_string())
     } else if let Some(profile) = state.user_profile.get(&principal_id) {
         let mut user_profile: UserProfile = profile.clone();
-        user_profile.submitted_proposals = user_submitted_proposals;
+        // user_profile.submitted_proposals = user_submitted_proposals;
         Ok(user_profile)
 
     } else {

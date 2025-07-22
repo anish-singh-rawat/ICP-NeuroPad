@@ -9,7 +9,7 @@ import {
 import { idlFactory as DaoFactory } from "../../../declarations/agent_canister/index";
 import { useSelector } from "react-redux";
 
-const AuthContext : any = createContext();
+const AuthContext = createContext(null) as any;
 
 const defaultOptions = {
   createOptions: {
@@ -181,7 +181,7 @@ export const useAuthClient = (options = defaultOptions) => {
                 });
 
                 // Get principal from Plug wallet
-                const plugPrincipal = await windows.ic.plug.agent.getPrincipal();
+                const plugPrincipal : any = await windows.ic.plug.agent.getPrincipal();
                 setPrincipal(plugPrincipal.toString());
 
                 // Derive account ID from principal
@@ -212,7 +212,7 @@ export const useAuthClient = (options = defaultOptions) => {
 
                 setIsAuthenticated(true); // Manually set to true after successfully retrieving principal
                 if (backendActor) {
-                  await checkUser(plugPrincipal.toString());
+                  await checkUser();
                 }
                 // updateClient(authClient); // Update the client session
 
@@ -236,7 +236,6 @@ export const useAuthClient = (options = defaultOptions) => {
               onSuccess: () => {
                 updateClient(authClient);
                 setIsAuthenticated(true); // Manually set isAuthenticated to true
-                navigate("/"); // Redirect to dashboard after successful login
                 resolve(authClient);
               },
             });
@@ -302,7 +301,7 @@ export const useAuthClient = (options = defaultOptions) => {
       );
       setBackendActor(backendActor);
       if (backendActor) {
-        await checkUser(principal.toString());
+        await checkUser();
       } else {
         console.error("Backend actor initialization failed.");
       }
@@ -377,12 +376,9 @@ export const useAuthClient = (options = defaultOptions) => {
     }
   };
 
-  const checkUser = async (user: any ) => {
-    if (!backendActor) {
-      throw new Error("Backend actor not initialized");
-    }
+  const checkUser = async () => {
     try {
-      const result = await backendActor?.check_user_existance(user);
+      const result = await backendActor?.check_user_existance();
       return result;
     } catch (error) {
       console.error("Error checking user:", error);
