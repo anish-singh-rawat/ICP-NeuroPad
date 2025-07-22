@@ -16,9 +16,9 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useAuth } from "../auth/useAuthClient.jsx";
-
 interface ConnectModalProps {
   isOpen: boolean;
+  setShouldOpen: any;
   onClose: () => void;
 }
 
@@ -28,7 +28,11 @@ interface UserFormData {
   twitter: string;
 }
 
-export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
+export default function ConnectModal({
+  setShouldOpen,
+  isOpen,
+  onClose,
+}: ConnectModalProps) {
   const [step, setStep] = useState(1);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -37,7 +41,7 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
     website: "",
     twitter: "",
   });
-  const { principal, backendActor, isAuthenticated, login } = useAuth();
+  const { principal, backendActor, isAuthenticated, login, logout } = useAuth();
 
   const updateFormData = (field: keyof UserFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -66,13 +70,24 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
         website: formData.website,
       };
       const result = await backendActor.create_user_profile(payload);
-      console.log("result : ", result);
+      if (result.Ok) {
+        alert("Profile created successfully!");
+      } else if (result.Err) {
+        alert(`Error: ${result.Err}`);
+      }
+      setShouldOpen(false);
     } catch (error) {
       console.log("error : ", error);
     } finally {
       setIsConnecting(false);
     }
   };
+
+  const handleLogout = async () => {
+     await logout();
+      window.location.href = "/";
+  };
+  
 
   const isStep2Valid = formData.name && formData.website;
 
@@ -309,24 +324,36 @@ export default function ConnectModal({ isOpen, onClose }: ConnectModalProps) {
                           </div>
                         </div>
                       </div>
-
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={!isStep2Valid || isConnecting}
-                        className="w-full bg-gradient-to-r from-neuro-500 to-electric-500 hover:from-neuro-600 hover:to-electric-600 text-white h-12 shadow-lg"
-                      >
-                        {isConnecting ? (
-                          <div className="flex items-center space-x-2">
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>Creating Profile...</span>
-                          </div>
-                        ) : (
+                      <div>
+                        {isOpen ? (
+                          <Button
+                          onClick={handleLogout}
+                          className="w-full bg-gradient-to-r from-neuro-500 to-electric-500 hover:from-neuro-600 hover:to-electric-600 text-white h-12 shadow-lg">
                           <div className="flex items-center space-x-2">
                             <CheckCircle className="w-5 h-5" />
-                            <span>Complete Setup</span>
+                            <span>Logout</span>
                           </div>
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={handleSubmit}
+                            disabled={!isStep2Valid || isConnecting}
+                            className="w-full bg-gradient-to-r from-neuro-500 to-electric-500 hover:from-neuro-600 hover:to-electric-600 text-white h-12 shadow-lg"
+                          >
+                            {isConnecting ? (
+                              <div className="flex items-center space-x-2">
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Creating Profile...</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-2">
+                                <CheckCircle className="w-5 h-5" />
+                                <span>Complete Setup</span>
+                              </div>
+                            )}
+                          </Button>
                         )}
-                      </Button>
+                      </div>
                     </div>
                   </motion.div>
                 )

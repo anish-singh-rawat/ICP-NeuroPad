@@ -112,11 +112,11 @@ dfx deploy agent_canister --argument '(record {
 
 dfx deploy NeuroPad_backend --argument "(record { payment_recipient = principal \"${RECIEVER}\"; ic_asset_canister_id = principal \"${ASSET_CANISTER_ID}\"; agent_canister_id = principal \"${AGENT_CANISTER_ID}\"; neuropad_ledger_id = principal \"${NEUROPAD_TOKEN}\"; })"
 
- dfx deploy ic_asset_handler
+#  dfx deploy ic_asset_handler
  
- dfx deploy internet_identity
+#  dfx deploy internet_identity
  
- dfx deploy NeuroPad_frontend
+#  dfx deploy NeuroPad_frontend
 # dfx deploy
 
 

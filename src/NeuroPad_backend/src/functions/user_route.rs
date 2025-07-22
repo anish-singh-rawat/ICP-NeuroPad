@@ -25,13 +25,26 @@ async fn create_user_profile(
 
     let principal_id = api::caller();
 
-    with_state(|state| {
-        let mut new_profile =  state.user_profile.get(&principal_id).clone().unwrap();
-        new_profile.username = profile.username;
-        new_profile.twitter_id = profile.twitter_id;
-        new_profile.website = profile.website;
-        new_profile.user_id = principal_id.clone();
+     let is_registered = with_state(|state| {
+        if state.user_profile.contains_key(&ic_cdk::caller()) {
+            return Err(crate::utils::USER_REGISTERED);
+        }
+        Ok(())
+    })
+    .is_err();
 
+    if is_registered {
+        return Err(String::from(crate::utils::USER_REGISTERED));
+    }
+
+      let new_profile = UserProfile {
+        username : profile.username,
+        twitter_id : profile.twitter_id,
+        website : profile.website,
+        user_id : principal_id.clone()
+    };
+
+    with_state(|state| {
         state.user_profile.insert(principal_id.clone(), new_profile.clone());
     });
 

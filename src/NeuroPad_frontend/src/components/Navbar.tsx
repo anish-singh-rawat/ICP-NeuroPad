@@ -284,6 +284,7 @@ export default function Navbar() {
       {/* Connect Modal */}
       <ConnectModal
         isOpen={shouldOpen}
+        setShouldOpen={setShouldOpen}
         onClose={() => setShouldOpen(false)}
       />
     </motion.nav>
