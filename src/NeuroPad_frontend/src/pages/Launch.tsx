@@ -32,7 +32,8 @@ import { Badge } from "../components/ui/badge";
 import { cn } from "../lib/utils";
 import { Principal } from "@dfinity/principal";
 import { Actor, HttpAgent } from "@dfinity/agent";
-import {NeuroPad_backend } from "../../../declarations/NeuroPad_backend";
+import { NeuroPad_backend } from "../../../declarations/NeuroPad_backend";
+import { F } from "framer-motion/dist/types.d-Bq-Qm38R";
 
 interface FormData {
   launchType: "genesis" | "standard" | "";
@@ -41,7 +42,6 @@ interface FormData {
   tokenName: string;
   tokenSymbol: string;
   totalSupply: string;
-  tokenImage: File | null;
   tokenomicsProposal: string;
   launchDate: string;
   category: string;
@@ -49,6 +49,10 @@ interface FormData {
   twitter: string;
   discord: string;
   telegram: string;
+  image_id: string;
+  image_title: string;
+  image_content: File | null;
+  image_content_type: string;
 }
 
 const categories = [
@@ -77,7 +81,6 @@ export default function Launch() {
     tokenName: "",
     tokenSymbol: "",
     totalSupply: "",
-    tokenImage: null,
     tokenomicsProposal: "",
     launchDate: "",
     category: "",
@@ -85,13 +88,23 @@ export default function Launch() {
     twitter: "",
     discord: "",
     telegram: "",
+    image_id: "",
+    image_title: "",
+    image_content: null,
+    image_content_type: "image/png",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const handleUploadImage = (data : any)=>{
+    console.log("data : ",data);
+    setFormData((prev : any) => ({ ...prev, image_id : data?.lastModified, image_title : data?.name, image_content : data, image_content_type : data?.type }));
+  }
 
   const steps = [
     {
@@ -133,53 +146,55 @@ export default function Launch() {
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
-
-    const handleSubmit = async () => {
-    if (!formData.tokenImage) {
-      alert("Please select an image first.");
-      return;
-    }
+const fileToUint8Array = async (file: File): Promise<Uint8Array> => {
+  const arrayBuffer = await file.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+};
+  const handleSubmit = async () => {
+    // if (!formData.image_content) {
+    //   alert("Please select an image first.");
+    //   return;
+    // }
 
     setIsSubmitting(true);
     try {
-      const BACKEND_CANISTER_ID : any = process.env.CANISTER_ID_IC_ASSET_HANDLER; 
+      const BACKEND_CANISTER_ID: any = process.env.CANISTER_ID_IC_ASSET_HANDLER;
 
       console.log("Backend canister ID:", BACKEND_CANISTER_ID);
 
-      const buf = await formData.tokenImage.arrayBuffer();
-      const imageBytes = Array.from(new Uint8Array(buf));
+      const imageContent = await fileToUint8Array(formData.image_content as File);
 
       const payload = {
-        agent_name:           formData.agentName,
-        agent_category:       "Testing",
-        agent_type:           formData.launchType === "genesis" ? { GenesisLaunch: null } : { StandardLaunch: null },
-        agent_overview:       formData.agentOverview,
-        members:              [Principal.fromText(BACKEND_CANISTER_ID)],
-        agent_website:        formData.website,
-        agent_twitter:        formData.twitter,
-        image_title:          formData.tokenImage.name,
-        agent_discord:        formData.discord,
-        agent_telegram:       formData.telegram,
-        token_name:           formData.tokenName,
-        token_symbol:         formData.tokenSymbol,
-        token_supply:         Number(formData.totalSupply),
-        agent_description:    formData.agentOverview,
-        image_id:             formData.tokenImage.name,
-        image_content:        imageBytes,              
-        image_content_type:   formData.tokenImage.type, 
-        agent_lunch_time:     1000n,
-        image_canister:       Principal.fromText(BACKEND_CANISTER_ID),
-        members_count:        1,
+        image_canister: Principal.fromText(BACKEND_CANISTER_ID),
+        members: [Principal.fromText(BACKEND_CANISTER_ID)],
+        token_symbol: formData.tokenSymbol,
+        agent_category: formData.category,
+        agent_twitter: formData.twitter,
+        agent_telegram: formData.telegram,
+        agent_name: formData.agentName,
+        agent_type: formData.launchType === "genesis"? { GenesisLaunch: null }: { StandardLaunch: null },
+        agent_description: formData.tokenomicsProposal,
+        agent_lunch_time: BigInt(new Date(formData.launchDate).getTime() * 1_000_000),
+        agent_website: formData.website,
+        image_content_type: formData.image_content_type,
+        image_content: imageContent,
+        image_id: formData.image_id as string,
+        image_title: formData.image_title as string,
+        members_count: 1,
+        agent_overview: formData.agentOverview,
+        agent_discord: formData.discord,
+        token_name: formData.tokenName,
+        token_supply: Number(formData.totalSupply),
       };
 
-      console.log("Payload →", payload);
-      const result: any = await NeuroPad_backend.make_payment_and_create_agent(payload);
+      console.log("Payload → ", payload);
+      const result: any =
+        await NeuroPad_backend.make_payment_and_create_agent(payload);
       console.log("Canister response:", result);
 
-      if(result.Ok){
+      if (result.Ok) {
         alert("✅ " + result.Ok);
       }
-
     } catch (err: any) {
       console.error(err);
       alert("Failed to submit: " + (err.message || err));
@@ -187,7 +202,6 @@ export default function Launch() {
       setIsSubmitting(false);
     }
   };
-
 
   const isStepValid = (step: number) => {
     switch (step) {
@@ -202,7 +216,7 @@ export default function Launch() {
           formData.tokenName &&
           formData.tokenSymbol &&
           formData.totalSupply &&
-          formData.tokenImage
+          formData.image_content
         );
       case 4:
         return formData.tokenomicsProposal;
@@ -699,7 +713,7 @@ export default function Launch() {
                               accept="image/*"
                               onChange={(e) => {
                                 const file: any = e.target.files?.[0] || null;
-                                updateFormData("tokenImage", file);
+                               handleUploadImage(file)
                               }}
                               className="hidden"
                             />
@@ -707,11 +721,11 @@ export default function Launch() {
                               htmlFor="tokenImage"
                               className="cursor-pointer"
                             >
-                              {formData.tokenImage ? (
+                              {formData.image_content ? (
                                 <div className="flex items-center justify-center space-x-2">
                                   <Coins className="w-6 h-6 text-neuro-500" />
                                   <span className="text-sm font-medium">
-                                    {formData.tokenImage.name}
+                                    {formData.image_content.name}
                                   </span>
                                 </div>
                               ) : (
@@ -836,7 +850,7 @@ export default function Launch() {
                           placeholder="Describe your detailed tokenomics strategy including:&#10;• Token utility and use cases&#10;• Vesting schedules (if applicable)&#10;• Staking/governance mechanisms&#10;• Revenue sharing model&#10;• Long-term sustainability plan&#10;• Community incentives"
                           value={formData.tokenomicsProposal}
                           onChange={(e) =>
-                            updateFormData("tokenomicsProposal", e.target.value)
+                           updateFormData("tokenomicsProposal", e.target.value)
                           }
                           rows={8}
                           className="mt-1"
@@ -958,7 +972,7 @@ export default function Launch() {
                                 Token Image
                               </span>
                               <span>
-                                {formData.tokenImage?.name ? "✓ Uploaded" : "—"}
+                                {formData.image_content?.name ? "✓ Uploaded" : "—"}
                               </span>
                             </div>
                             {formData.launchType === "genesis" && (
@@ -1054,7 +1068,7 @@ export default function Launch() {
                     {currentStep < 5 && (
                       <Button
                         onClick={nextStep}
-                        disabled={!isStepValid(currentStep)}
+                        // disabled={!isStepValid(currentStep)}
                         className="bg-neuro-gradient hover:bg-neuro-gradient-dark text-white"
                       >
                         Next

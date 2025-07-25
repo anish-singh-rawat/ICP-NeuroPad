@@ -475,6 +475,7 @@ pub struct UserProfile {
     pub username: String,
     pub twitter_id: String,
     pub website: String,
+    pub user_created_agents :  Option<Vec<Principal>>,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
@@ -482,6 +483,7 @@ pub struct Profileinput {
     pub username: String,
     pub twitter_id: String,
     pub website: String,
+    pub user_created_agents : Option<Vec<Principal>>,
 }
 
 
@@ -547,7 +549,6 @@ pub struct AgentInput {
     pub members: Vec<Principal>,
     pub agent_website : String,
     pub agent_twitter : String,
-    pub image_title : String,
     pub agent_discord : String,
     pub agent_telegram : String,
     pub token_name: String,
@@ -557,6 +558,7 @@ pub struct AgentInput {
     pub image_id: String,
     pub image_content: ByteBuf,
     pub image_content_type: String,
+    pub image_title : String,
     pub agent_lunch_time : u64,
     pub image_canister: Principal,
     pub members_count: u32,

@@ -41,7 +41,8 @@ async fn create_user_profile(
         username : profile.username,
         twitter_id : profile.twitter_id,
         website : profile.website,
-        user_id : principal_id.clone()
+        user_id : principal_id.clone(),
+        user_created_agents : None,
     };
 
     with_state(|state| {
@@ -60,12 +61,21 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
         None => return Err(String::from(crate::utils::USER_DOES_NOT_EXIST)),
     };
 
+
     let agent_canister_id = create_agent_canister(agent_detail.clone())
         .await
         .map_err(|err| format!("{} {}", crate::utils::CREATE_AGENT_CANISTER_FAIL, err))?;
 
     // to create ledger canister
     let ledger_canister_id = create_new_ledger_canister(agent_detail.clone(), agent_canister_id).await;
+
+     user_profile_detail.user_created_agents = match user_profile_detail.user_created_agents {
+        Some(mut agents) => {
+            agents.push(agent_canister_id.clone());
+            Some(agents)
+        }
+        None => Some(vec![agent_canister_id.clone()]),
+    };
 
     let res = match ledger_canister_id {
         Ok(val) => Ok(val),
@@ -122,7 +132,7 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     
     with_state(|state| {
         if let Some(profile) = state.user_profile.get(&api::caller()) {
-            let mut updated_profile = profile.clone();
+            let updated_profile = profile.clone();
             // updated_profile.join_agent.push(agent_canister_id.clone());
             state.user_profile.insert(principal_id, updated_profile);
         }

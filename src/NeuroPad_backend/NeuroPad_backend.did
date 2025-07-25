@@ -52,6 +52,7 @@ type Profileinput = record {
   username : text;
   twitter_id : text;
   website : text;
+  user_created_agents : opt vec principal;
 };
 type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok; Err : text };
@@ -61,6 +62,7 @@ type UserProfile = record {
   twitter_id : text;
   user_id : principal;
   website : text;
+  user_created_agents : opt vec principal;
 };
 service : (InitialArgs) -> {
   check_user_existance : () -> (Result) query;
