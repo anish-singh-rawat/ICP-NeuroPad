@@ -10,18 +10,14 @@ import {
   DollarSign,
   Users,
   PieChart,
-  ArrowRight,
   Check,
-  AlertTriangle,
   Info,
   Shield,
   TrendingUp,
   Target,
-  FileText,
-  Upload,
   Brain,
   Settings,
-  Star,
+  Coins,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -29,6 +25,8 @@ import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
 import { cn } from "../lib/utils";
+import { Principal } from "@dfinity/principal";
+import { useAuth } from "../auth/useAuthClient";
 
 interface FormData {
   launchType: "genesis" | "standard" | "";
@@ -37,7 +35,6 @@ interface FormData {
   tokenName: string;
   tokenSymbol: string;
   totalSupply: string;
-  minimumCap: string;
   tokenomicsProposal: string;
   launchDate: string;
   category: string;
@@ -45,6 +42,10 @@ interface FormData {
   twitter: string;
   discord: string;
   telegram: string;
+  image_id: string;
+  image_title: string;
+  image_content: File | null;
+  image_content_type: string;
 }
 
 const categories = [
@@ -73,7 +74,6 @@ export default function Launch() {
     tokenName: "",
     tokenSymbol: "",
     totalSupply: "",
-    minimumCap: "",
     tokenomicsProposal: "",
     launchDate: "",
     category: "",
@@ -81,13 +81,24 @@ export default function Launch() {
     twitter: "",
     discord: "",
     telegram: "",
+    image_id: "",
+    image_title: "",
+    image_content: null,
+    image_content_type: "image/png",
   });
+  const { backendActor } = useAuth();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const handleUploadImage = (data : any)=>{
+    console.log("data : ",data);
+    setFormData((prev : any) => ({ ...prev, image_id : data?.lastModified, image_title : data?.name, image_content : data, image_content_type : data?.type }));
+  }
 
   const steps = [
     {
@@ -129,14 +140,60 @@ export default function Launch() {
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
-
+const fileToUint8Array = async (file: File): Promise<Uint8Array> => {
+  const arrayBuffer = await file.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+};
   const handleSubmit = async () => {
+    // if (!formData.image_content) {
+    //   alert("Please select an image first.");
+    //   return;
+    // }
+
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    // Handle successful submission
-    alert("Agent launch request submitted successfully!");
+    try {
+      const BACKEND_CANISTER_ID: any = process.env.CANISTER_ID_IC_ASSET_HANDLER;
+
+      console.log("Backend canister ID:", BACKEND_CANISTER_ID);
+
+      const imageContent = await fileToUint8Array(formData.image_content as File);
+
+      const payload = {
+        image_canister: Principal.fromText(BACKEND_CANISTER_ID),
+        members: [Principal.fromText(BACKEND_CANISTER_ID)],
+        token_symbol: formData.tokenSymbol,
+        agent_category: formData.category,
+        agent_twitter: formData.twitter,
+        agent_telegram: formData.telegram,
+        agent_name: formData.agentName,
+        agent_type: formData.launchType === "genesis"? { GenesisLaunch: null }: { StandardLaunch: null },
+        agent_description: formData.tokenomicsProposal,
+        agent_lunch_time: BigInt(new Date(formData.launchDate).getTime() * 1_000_000),
+        agent_website: formData.website,
+        image_content_type: formData.image_content_type,
+        image_content: imageContent,
+        image_id: formData.image_id.toString(),
+        image_title: formData.image_title as string,
+        members_count: 1,
+        agent_overview: formData.agentOverview,
+        agent_discord: formData.discord,
+        token_name: formData.tokenName,
+        token_supply: Number(formData.totalSupply),
+      };
+
+      console.log("Payload → ", payload);
+      const result: any = await backendActor.make_payment_and_create_agent(payload);
+      console.log("Canister response:", result);
+
+      if (result.Ok) {
+        alert("✅ " + result.Ok);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to submit: " + (err.message || err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isStepValid = (step: number) => {
@@ -152,7 +209,7 @@ export default function Launch() {
           formData.tokenName &&
           formData.tokenSymbol &&
           formData.totalSupply &&
-          formData.minimumCap
+          formData.image_content
         );
       case 4:
         return formData.tokenomicsProposal;
@@ -241,7 +298,7 @@ export default function Launch() {
                             ? "bg-neuro-500 border-neuro-500 text-white"
                             : isActive
                               ? "border-neuro-500 bg-neuro-50 dark:bg-neuro-950 text-neuro-500"
-                              : "border-muted-foreground/30 bg-muted text-muted-foreground",
+                              : "border-muted-foreground/30 bg-muted text-muted-foreground"
                         )}
                       >
                         {isCompleted ? (
@@ -256,7 +313,7 @@ export default function Launch() {
                             "font-medium text-sm",
                             isActive
                               ? "text-foreground"
-                              : "text-muted-foreground",
+                              : "text-muted-foreground"
                           )}
                         >
                           {step.title}
@@ -272,7 +329,7 @@ export default function Launch() {
                           "absolute top-6 left-1/2 w-full h-0.5 -translate-y-1/2 transition-colors duration-300",
                           isCompleted
                             ? "bg-neuro-500"
-                            : "bg-muted-foreground/30",
+                            : "bg-muted-foreground/30"
                         )}
                         style={{ left: "50%", width: "calc(100% - 3rem)" }}
                       />
@@ -314,11 +371,11 @@ export default function Launch() {
                           onClick={() =>
                             updateFormData("launchType", "genesis")
                           }
-                           className={cn(
+                          className={cn(
                             "p-6 border-2 rounded-xl cursor-pointer transition-all duration-300",
                             formData.launchType === "genesis"
                               ? "border-neuro-500 bg-neuro-50/50"
-                              : "border-border",
+                              : "border-border"
                           )}
                         >
                           <div className="flex items-center space-x-3 mb-4">
@@ -388,11 +445,11 @@ export default function Launch() {
                           onClick={() =>
                             updateFormData("launchType", "standard")
                           }
-                           className={cn(
+                          className={cn(
                             "p-6 border-2 rounded-xl cursor-pointer transition-all duration-300",
                             formData.launchType === "standard"
                               ? "border-neuro-500 bg-neuro-50/50"
-                              : "border-border",
+                              : "border-border"
                           )}
                         >
                           <div className="flex items-center space-x-3 mb-4">
@@ -617,7 +674,7 @@ export default function Launch() {
                               onChange={(e) =>
                                 updateFormData(
                                   "tokenSymbol",
-                                  e.target.value.toUpperCase(),
+                                  e.target.value.toUpperCase()
                                 )
                               }
                               className="mt-1"
@@ -641,20 +698,41 @@ export default function Launch() {
                             />
                           </div>
 
-                          <div>
-                            <Label htmlFor="minimumCap">
-                              Minimum Cap (NeuroPad) *
-                            </Label>
-                            <Input
-                              id="minimumCap"
-                              type="number"
-                              placeholder="e.g., 50,000"
-                              value={formData.minimumCap}
-                              onChange={(e) =>
-                                updateFormData("minimumCap", e.target.value)
-                              }
-                              className="mt-1"
+                          <Label htmlFor="tokenImage">Token Image *</Label>
+                          <div className="mt-1 border-2 border-dashed border-muted rounded-lg p-6 text-center hover:border-neuro-500 transition-colors cursor-pointer">
+                            <input
+                              type="file"
+                              id="tokenImage"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file: any = e.target.files?.[0] || null;
+                               handleUploadImage(file)
+                              }}
+                              className="hidden"
                             />
+                            <label
+                              htmlFor="tokenImage"
+                              className="cursor-pointer"
+                            >
+                              {formData.image_content ? (
+                                <div className="flex items-center justify-center space-x-2">
+                                  <Coins className="w-6 h-6 text-neuro-500" />
+                                  <span className="text-sm font-medium">
+                                    {formData.image_content.name}
+                                  </span>
+                                </div>
+                              ) : (
+                                <>
+                                  <Coins className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                                  <p className="text-sm text-muted-foreground">
+                                    Click to upload token image
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    PNG, JPG up to 2MB
+                                  </p>
+                                </>
+                              )}
+                            </label>
                           </div>
                         </div>
                       </div>
@@ -730,7 +808,7 @@ export default function Launch() {
                                 <div
                                   className={cn(
                                     "w-4 h-4 rounded-full",
-                                    item.color,
+                                    item.color
                                   )}
                                 />
                                 <span className="text-sm font-medium flex-1">
@@ -765,7 +843,7 @@ export default function Launch() {
                           placeholder="Describe your detailed tokenomics strategy including:&#10;• Token utility and use cases&#10;• Vesting schedules (if applicable)&#10;• Staking/governance mechanisms&#10;• Revenue sharing model&#10;• Long-term sustainability plan&#10;• Community incentives"
                           value={formData.tokenomicsProposal}
                           onChange={(e) =>
-                            updateFormData("tokenomicsProposal", e.target.value)
+                           updateFormData("tokenomicsProposal", e.target.value)
                           }
                           rows={8}
                           className="mt-1"
@@ -884,12 +962,10 @@ export default function Launch() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
-                                Minimum Cap:
+                                Token Image
                               </span>
                               <span>
-                                {formData.minimumCap
-                                  ? `${parseInt(formData.minimumCap).toLocaleString()} NPT`
-                                  : "—"}
+                                {formData.image_content?.name ? "✓ Uploaded" : "—"}
                               </span>
                             </div>
                             {formData.launchType === "genesis" && (
@@ -900,7 +976,7 @@ export default function Launch() {
                                 <span>
                                   {formData.launchDate
                                     ? new Date(
-                                        formData.launchDate,
+                                        formData.launchDate
                                       ).toLocaleString()
                                     : "—"}
                                 </span>
@@ -949,7 +1025,7 @@ export default function Launch() {
 
                         <Button
                           onClick={handleSubmit}
-                          disabled={!isStepValid(5) || isSubmitting}
+                          // disabled={!isStepValid(5) || isSubmitting}
                           className="w-full bg-neuro-gradient hover:bg-neuro-gradient-dark text-white h-12 text-lg"
                         >
                           {isSubmitting ? (
@@ -985,7 +1061,7 @@ export default function Launch() {
                     {currentStep < 5 && (
                       <Button
                         onClick={nextStep}
-                        disabled={!isStepValid(currentStep)}
+                        // disabled={!isStepValid(currentStep)}
                         className="bg-neuro-gradient hover:bg-neuro-gradient-dark text-white"
                       >
                         Next

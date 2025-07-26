@@ -13,11 +13,14 @@ import Launch from "./pages/Launch";
 import AgentDetail from "./pages/AgentDetail";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import Wallet from "./pages/Wallet";
-import About from "./pages/About.jsx";
+import About from "./pages/About";
 import * as React from "react";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import { AuthProvider } from "./auth/useAuthClient";
+import { UserProfileProvider } from "./context/UserProfileContext";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +30,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-      <Navbar/>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/explore" element={<Explore />} />
@@ -35,19 +38,21 @@ const App = () => (
           <Route path="/agent/:id" element={<AgentDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/wallet" element={<Wallet />} />
-           <Route path="/about" element={<About />} />
+          <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <Footer/>
+        <Footer />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
 
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+createRoot(document.getElementById("root")).render(
+  <Provider store={store}>
+    <AuthProvider>
+      <UserProfileProvider>
+        <App />
+      </UserProfileProvider>
+    </AuthProvider>
+  </Provider>
 );
-

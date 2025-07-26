@@ -1,5 +1,4 @@
-use crate::types::AgentDetails;
-use crate::LedgerCanisterId;
+use crate::types::{AgentDetails, AgentType};
 use candid::Principal;
 
 pub struct State {
@@ -11,26 +10,24 @@ impl State {
         Self {
             agent : AgentDetails {
                 agent_id: Principal::anonymous(),
-                agent_name: String::from("Example AGENT"),
-                purpose: String::from("Example Purpose"),
-                link_of_document: String::from("Example Document"),
-                cool_down_period: 7,
-                // tokenissuer: String::from("Example Token Issuer"),
-                linksandsocials: Vec::new(),
-                // group_name: Vec::new(),
+                agent_name: String::new(),
+                agent_category: String::new(),
+                agent_type: AgentType::StandardLaunch,
+                agent_overview: String::new(),
                 members: Vec::new(),
-                image_id: "1".to_string(),
+                agent_website: String::new(),
+                agent_twitter: String::new(),
                 members_count: 0,
-                proposals_count: 0,
-                proposal_ids: Vec::new(),
-                token_ledger_id: LedgerCanisterId {
-                    id: Principal::anonymous(),
-                },
-                total_tokens: 0,
+                agent_discord: String::new(),
+                agent_telegram: String::new(),
+                token_name: String::new(),
                 token_symbol: String::new(),
                 image_canister: Principal::anonymous(),
-                agent_canister_id: Principal::anonymous(),
-                all_agent_user :  vec![],
+                token_supply: 0,
+                agent_description: String::new(),
+                image_id: String::new(),
+                agent_lunch_time: 0,
+                token_ledger_id: Principal::anonymous(),
             },
         }
     }

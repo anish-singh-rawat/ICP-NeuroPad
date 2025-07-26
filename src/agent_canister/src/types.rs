@@ -90,39 +90,53 @@ pub struct LedgerCanisterId {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
+pub enum AgentType {
+    GenesisLaunch,
+    StandardLaunch
+}
+
+#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentDetails {
     pub agent_id: Principal,
     pub agent_name: String,
-    pub purpose: String,
-    pub link_of_document: String,
-    pub cool_down_period: u32,
-    pub linksandsocials: Vec<String>,
-    pub image_canister: Principal,
-    pub image_id: String,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
     pub members: Vec<Principal>,
+    pub agent_website : String,
+    pub agent_twitter : String,
     pub members_count: u32,
-    pub proposals_count: u32,
-    pub proposal_ids: Vec<String>,
-    pub token_ledger_id: LedgerCanisterId,
-    pub total_tokens: u32,
+    pub agent_discord : String,
+    pub agent_telegram : String,
+    pub token_name: String,
     pub token_symbol: String,
-    pub agent_canister_id: Principal,
-    pub all_agent_user : Vec<Principal>,
+    pub image_canister: Principal,
+    pub token_supply: u32,
+    pub agent_description: String,
+    pub image_id: String,
+    pub agent_lunch_time : u64,
+    pub token_ledger_id: Principal, 
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentCreationInput {
     pub agent_name: String,
-    pub purpose: String,
-    pub link_of_document: String,
-    pub cool_down_period: u32,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
     pub members: Vec<Principal>,
-    pub linksandsocials: Vec<String>,
-    pub image_canister: Principal,
-    pub image_id: String,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub members_count: u32,
+    pub agent_discord : String,
+    pub agent_telegram : String,
+    pub token_name: String,
     pub token_symbol: String,
+    pub image_canister: Principal,
     pub token_supply: u32,
-    pub parent_agent_canister_id: Principal,
+    pub agent_description: String,
+    pub image_id: String,
+    pub agent_lunch_time : u64,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]

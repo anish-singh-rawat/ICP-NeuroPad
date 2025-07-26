@@ -1,39 +1,17 @@
-// use std::collections::BTreeMap;
-use crate::{with_state, AgentDetails, AgentInput, Pagination};
+use crate::{with_state, AgentDetails, AgentInput};
 use candid::{Nat, Principal};
-use ic_cdk::{api, update};
+use ic_cdk::update;
+use ic_cdk_timers::set_timer;
 use icrc_ledger_types::{
     icrc1::{account::Account, transfer::BlockIndex},
     icrc2::transfer_from::{TransferFromArgs, TransferFromError},
 };
+use std::time::Duration;
 
 use crate::guards::*;
 use ic_cdk::query;
 
 use super::create_agent;
-
-#[query(guard = prevent_anonymous)]
-fn get_all_agent_pagination(page_data: Pagination) -> Vec<AgentDetails> {
-    let mut agents: Vec<AgentDetails> = Vec::new();
-    with_state(|state| {
-        for y in state.agent_details.iter() {
-            agents.push(y.1);
-        }
-    });
-    let ending = agents.len();
-    if ending == 0 {
-        return agents;
-    }
-    let start = page_data.start as usize;
-    let end = page_data.end as usize;
-    if start < ending {
-        let end = end.min(ending);
-        return agents[start..end].to_vec();
-    }
-    Vec::new()
-}
-
-
 
 #[query(guard = prevent_anonymous)]
 fn get_all_agent() -> Vec<AgentDetails> {
@@ -43,16 +21,18 @@ fn get_all_agent() -> Vec<AgentDetails> {
             agents.push(y.1);
         }
     });
-    return  agents;
+    return agents;
 }
 
-
-// ledger handlers
 async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, String> {
     let canister_meta_data = with_state(|state| state.canister_data.get(&0));
 
     let payment_recipient = match canister_meta_data {
         Some(val) => val.paymeny_recipient,
+        None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
+    };
+    let neuropad_ledger_id = match canister_meta_data {
+        Some(val) => val.neuropad_ledger_id,
         None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
     };
 
@@ -73,8 +53,7 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
     };
 
     ic_cdk::call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(
-        Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai")
-            .expect("Could not decode the principal if ICP ledger."),
+        neuropad_ledger_id,
         "icrc2_transfer_from",
         (transfer_args,),
     )
@@ -84,20 +63,26 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
     .map_err(|e| format!("ledger transfer error {:?}", e))
 }
 
-#[update(guard = prevent_anonymous)]
-async fn make_payment_and_create_agent(agent_details:AgentInput)->Result<String, String> {
-    let required_balance: Nat = Nat::from(10_000_000u64);
-    let result: Result<Nat, String> = transfer(required_balance, api::caller()).await;
-    match result {
-        Err(error) => Err(error),
-        Ok(_) => {
-            let agent_response: Result<String, String> = create_agent(agent_details).await;
-            match agent_response {
-                Err(error) => Err(error),
-                Ok(response) => Ok(response),
+#[update]
+async fn make_payment_and_create_agent(agent_details: AgentInput) -> Result<String, String> {
+    let agent_clone = agent_details.clone();
+    let principal_id = ic_cdk::api::caller();
+    let now = ic_cdk::api::time();
+    let trigger_at = agent_details.agent_lunch_time;
+    let delay = trigger_at.saturating_sub(now);
+
+    set_timer(Duration::from_nanos(delay), move || {
+        let agent_clone = agent_clone.clone();
+        ic_cdk::spawn(async move {
+            let result = create_agent(agent_clone, principal_id).await;
+            match result {
+                Ok(success_msg) => ic_cdk::println!("Agent created: {}", success_msg),
+                Err(err_msg) => ic_cdk::println!("Failed to create agent: {}", err_msg),
             }
-        }
-    }
+        });
+    });
+
+    Ok("Timer set to create agent later ✅".to_string())
 }
 
 #[query(guard = prevent_anonymous)]

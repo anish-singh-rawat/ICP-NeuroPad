@@ -1,10 +1,10 @@
-use crate::routes::{create_agent_canister, create_new_ledger_canister, upload_image};
+use crate::routes::{create_agent_canister, create_new_ledger_canister};
 use crate::types::{AgentInput, Profileinput, UserProfile};
 use crate::{
     guards::*, Account, ArchiveOptions,
-    FeatureFlags, InitArgs, LedgerArg, LedgerCanisterId, MinimalProfileinput,
+    FeatureFlags, InitArgs, LedgerArg,
 };
-use crate::{routes, with_state, AgentDetails, ImageData};
+use crate::{routes, with_state, AgentDetails};
 use candid::{Nat, Principal};
 use ic_cdk::api;
 use ic_cdk::{query, update};
@@ -12,70 +12,6 @@ use ic_cdk::{query, update};
 use super::canister_functions::call_inter_canister;
 use super::ledger_functions::create_ledger_canister;
 
-#[update(guard=prevent_anonymous)]
-async fn create_profile(profile: MinimalProfileinput) -> Result<String, String> {
-    // Validate email format
-    if !profile.email_id.contains('@') || !profile.email_id.contains('.') {
-        return Err(String::from(crate::utils::INVALID_EMAIL));
-    }
-    let principal_id = api::caller();
-
-    // Check if the user is already registered
-    let is_registered = with_state(|state| {
-        if state.user_profile.contains_key(&principal_id) {
-            return Err(crate::utils::USER_REGISTERED);
-        }
-        Ok(())
-    })
-    .is_err();
-    if is_registered {
-        return Err(String::from(crate::utils::USER_REGISTERED));
-    }
-
-    // to upload image
-    let image_id = upload_image(ImageData {
-        content: profile.image_content,
-        name: profile.image_title.clone(),
-        content_type: profile.image_content_type.clone(),
-    })
-    .await
-    .map_err(|err| format!("{}{}", crate::utils::IMAGE_UPLOAD_FAILED, err))?;
-
-    // getting image canister id
-    let asset_canister_id = with_state(|state| {
-        Ok(match state.canister_data.get(&0) {
-            Some(val) => val.ic_asset_canister,
-            None => return Err(String::from(crate::utils::CANISTER_DATA_NOT_FOUND)),
-        })
-    })
-    .map_err(|err| format!("Error: {}", err))
-    .unwrap();
-
-    let new_profile = UserProfile {
-        user_id: principal_id,
-        email_id: profile.email_id,
-        profile_img: image_id,
-        username: profile.name,
-        agent_ids: Vec::new(),
-        post_count: 0,
-        post_id: Vec::new(),
-        description: "".to_string(),
-        tag_defines: Vec::new(),
-        contact_number: "".to_string(),
-        twitter_id: "".to_string(),
-        telegram: "".to_string(),
-        website: "".to_string(),
-        image_canister: asset_canister_id,
-        join_agent :  Vec::new(),
-        submitted_proposals : 0,
-    };
-
-
-    with_state(|state| -> Result<String, String> {
-        state.user_profile.insert(principal_id, new_profile);
-        Ok(String::from(crate::utils::PROFILE_UPDATE_SUCCESS))
-    })
-}
 
 #[query(guard = prevent_anonymous)]
 async fn get_user_profile() -> Result<UserProfile, String> {
@@ -83,82 +19,40 @@ async fn get_user_profile() -> Result<UserProfile, String> {
 }
 
 #[update(guard = prevent_anonymous)]
-async fn update_profile(
-    // asset_handler_canister_id: String,
+async fn create_user_profile(
     profile: Profileinput,
 ) -> Result<(), String> {
-    if !profile.email_id.contains('@') || !profile.email_id.contains('.') {
-        return Err(String::from(crate::utils::INVALID_EMAIL));
-    }
 
     let principal_id = api::caller();
 
-    // Check if the user is already registered
-    let is_registered = with_state(|state| {
-        if !state.user_profile.contains_key(&principal_id) {
-            return Err(String::from(crate::utils::USER_REGISTERED));
+     let is_registered = with_state(|state| {
+        if state.user_profile.contains_key(&ic_cdk::caller()) {
+            return Err(crate::utils::USER_REGISTERED);
         }
         Ok(())
     })
     .is_err();
 
     if is_registered {
-        return Err(String::from(crate::utils::USER_DOES_NOT_EXIST));
-    }
-    // let is_registered = with_state(|state| {
-    //     if !state.user_profile.contains_key(&principal_id) {
-    //         return Err("User is not registered".to_string());
-    //     }
-    //     Ok(())
-    // }).is_err();
-
-    // if !is_registered {
-    //     return Err("User dosen't exist ".to_string());
-    // }
-    // Validate email format
-
-    let mut image_id: String = profile.profile_img.to_string();
-
-    if profile.image_title != "na".to_string() {
-        image_id = upload_image(
-            // asset_handler_canister_id,
-            ImageData {
-                content: profile.image_content,
-                name: profile.image_title.clone(),
-                content_type: profile.image_content_type.clone(),
-            },
-        )
-        .await
-        .map_err(|_err| crate::utils::IMAGE_UPLOAD_FAILED)?;
+        return Err(String::from(crate::utils::USER_REGISTERED));
     }
 
-    // image upload
-
-    // Clone the old profile and update the fields with new information
+      let new_profile = UserProfile {
+        username : profile.username,
+        twitter_id : profile.twitter_id,
+        website : profile.website,
+        user_id : principal_id.clone(),
+        user_created_agents : None,
+    };
 
     with_state(|state| {
-        let mut new_profile = state.user_profile.get(&principal_id).unwrap().clone();
-        new_profile.email_id = profile.email_id;
-        new_profile.profile_img = image_id;
-        new_profile.username = profile.username;
-        new_profile.description = profile.description;
-        new_profile.contact_number = profile.contact_number;
-        new_profile.twitter_id = profile.twitter_id;
-        new_profile.telegram = profile.telegram;
-        new_profile.website = profile.website;
-        new_profile.tag_defines = profile.tag_defines;
-
-        state.user_profile.insert(principal_id, new_profile);
+        state.user_profile.insert(principal_id.clone(), new_profile.clone());
     });
 
     Ok(())
-
-    // with_state(|state| routes::update_profile(state, profile.clone()))
 }
 
-#[update]
-pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
-    let principal_id = ic_cdk::api::caller();
+pub async fn create_agent(agent_detail: AgentInput, principal_id : Principal) -> Result<String, String> {
     let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
 
     let mut user_profile_detail = match user_profile_detail {
@@ -166,12 +60,24 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
         None => return Err(String::from(crate::utils::USER_DOES_NOT_EXIST)),
     };
 
+    ic_cdk::println!("Creating agent with details: {:?}", agent_detail);
+
     let agent_canister_id = create_agent_canister(agent_detail.clone())
         .await
         .map_err(|err| format!("{} {}", crate::utils::CREATE_AGENT_CANISTER_FAIL, err))?;
 
+    ic_cdk::println!("Agent canister created with id: {}", agent_canister_id.to_string());
+
     // to create ledger canister
     let ledger_canister_id = create_new_ledger_canister(agent_detail.clone(), agent_canister_id).await;
+
+     user_profile_detail.user_created_agents = match user_profile_detail.user_created_agents {
+        Some(mut agents) => {
+            agents.push(agent_canister_id.clone());
+            Some(agents)
+        }
+        None => Some(vec![agent_canister_id.clone()]),
+    };
 
     let res = match ledger_canister_id {
         Ok(val) => Ok(val),
@@ -184,11 +90,27 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
 
     let ledger_canister_id = res.map_err(|err| format!("Error in ledger canister id: {}", err))?;
 
+    ic_cdk::println!("Ledger canister created with id: {}", ledger_canister_id.to_string());
+
     let agent_details = AgentDetails {
         agent_canister_id: agent_canister_id.clone(),
         agent_name: agent_detail.agent_name,
-        agnet_desc: agent_detail.agent_desc,
-        agent_associated_ledger : agent_detail.agent_associated_ledger,
+        image_title: agent_detail.image_title,
+        agent_description : agent_detail.agent_description,
+        agent_associated_ledger : ledger_canister_id.clone(),
+        agent_category : agent_detail.agent_category,
+        agent_type : agent_detail.agent_type,
+        agent_overview : agent_detail.agent_overview,
+        members : agent_detail.members,
+        token_symbol : agent_detail.token_symbol,
+        token_supply : agent_detail.token_supply,
+        image_id : agent_detail.image_id,
+        agent_website : agent_detail.agent_website,
+        agent_twitter : agent_detail.agent_twitter,
+        agent_discord : agent_detail.agent_discord,
+        agent_telegram : agent_detail.agent_telegram,
+        token_name : agent_detail.token_name,
+        agent_lunch_time : agent_detail.agent_lunch_time,
     };
 
     with_state(|state| {
@@ -197,35 +119,44 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
             .insert(agent_canister_id.clone(), agent_details)
     });
 
-    user_profile_detail.agent_ids.push(agent_canister_id.clone());
 
-    match call_inter_canister::<LedgerCanisterId, ()>(
+    // with_state(|state| {
+    //     state
+    //         .user_profile
+    //         .insert(ic_cdk::api::caller(), agent_details)
+    // });
+
+    // user_profile_detail.agent_ids.push(agent_canister_id.clone());
+
+    match call_inter_canister::<Principal, ()>(
         "add_ledger_canister_id",
-        LedgerCanisterId {
-            id: ledger_canister_id,
-        },
+        ledger_canister_id,
         agent_canister_id,
     )
     .await
     {
-        Ok(()) => {}
+        Ok(()) => { ic_cdk::println!("Ledger canister id added to agent canister successfully"); }
         Err(err) => {
             return Err(format!("{}{}", crate::utils::INTER_CANISTER_FAILED, err));
         }
     }
 
+    ic_cdk::println!("Agent created, canister id: {} ledger id: {}", agent_canister_id.to_string(), ledger_canister_id.to_string());
+    
     with_state(|state| {
-        let new_canister_id = agent_canister_id.clone();
-        state.canister_ids.insert(new_canister_id, new_canister_id)
-    });
-
-    with_state(|state| {
-        if let Some(profile) = state.user_profile.get(&api::caller()) {
-            let mut updated_profile = profile.clone();
-            updated_profile.join_agent.push(agent_canister_id.clone());
+        if let Some(profile) = state.user_profile.get(&principal_id) {
+            let updated_profile = profile.clone();
+            // updated_profile.join_agent.push(agent_canister_id.clone());
+            ic_cdk::println!("updated profile {:?}", updated_profile);
             state.user_profile.insert(principal_id, updated_profile);
         }
     });
+
+    ic_cdk::println!(
+        "Agent created, canister id: {} ledger id: {}",
+        agent_canister_id.to_string().clone(),
+        ledger_canister_id.to_string().clone()
+    );
 
     Ok(format!(
         "Agent created, canister id: {} ledger id: {}",
@@ -303,5 +234,4 @@ pub async fn create_ledger(
 
     create_ledger_canister(ledger_args).await
 
-    // Ok("()".to_string())
 }

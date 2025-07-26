@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
 import { cn } from "../lib/utils";
+import { useAuth } from "../auth/useAuthClient";
 
 // Mock agent data
 const agents = [
@@ -137,6 +138,9 @@ export default function Explore() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("Featured");
+  const [allAgents, setAllAgents] = useState(null);
+
+  const { backendActor } = useAuth();
 
   const filteredAgents = agents
     .filter((agent) => {
@@ -144,7 +148,7 @@ export default function Explore() {
         agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agent.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agent.tags.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase()),
+          tag.toLowerCase().includes(searchTerm.toLowerCase())
         );
       const matchesCategory =
         selectedCategory === "All" || agent.category === selectedCategory;
@@ -166,6 +170,16 @@ export default function Explore() {
           return 0;
       }
     });
+
+  const data = async ()=>{
+    const result = await backendActor.get_all_agent();
+    console.log("result : ", result);
+    setAllAgents(result);
+  }
+
+  useEffect(() => {
+    data();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -219,7 +233,7 @@ export default function Explore() {
                     className={cn(
                       "glass dark:glass-dark border-white/20",
                       selectedCategory === category &&
-                        "bg-neuro-gradient text-white",
+                        "bg-neuro-gradient text-white"
                     )}
                   >
                     {category}
@@ -265,6 +279,7 @@ export default function Explore() {
             </p>
           </motion.div>
 
+          {/* List all the agents here  */}
           <AnimatePresence mode="wait">
             <motion.div
               key={`${searchTerm}-${selectedCategory}-${sortBy}`}
@@ -332,7 +347,7 @@ export default function Explore() {
                           </span>
                           <span className="font-medium">
                             {Math.round(
-                              (agent.currentFunding / agent.fundingGoal) * 100,
+                              (agent.currentFunding / agent.fundingGoal) * 100
                             )}
                             %
                           </span>

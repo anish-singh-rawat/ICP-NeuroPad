@@ -40,6 +40,13 @@ pub struct CreateCanisterArgument {
     pub settings: Option<CanisterSettings>,
 }
 
+#[derive(Clone, CandidType, Serialize, Deserialize)]
+pub struct ImageData {
+    pub content: ByteBuf,
+    pub name: String,
+    pub content_type: String,
+}
+
 
 #[derive(
     CandidType, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default,
@@ -465,53 +472,20 @@ pub struct CanisterInfoResponse {
 #[derive(Clone, CandidType, PartialEq, Debug, Serialize, Deserialize)]
 pub struct UserProfile {
     pub user_id: Principal,
-    pub email_id: String,
-    pub profile_img: String,
-    pub image_canister: Principal,
     pub username: String,
-    pub agent_ids: Vec<Principal>,
-    pub post_count: u32,
-    pub post_id: Vec<String>,
-    pub description: String,
-    pub tag_defines: Vec<String>,
-    pub contact_number: String,
     pub twitter_id: String,
-    pub telegram: String,
     pub website: String,
-    pub join_agent :  Vec<Principal>,
-    pub submitted_proposals : u64,
+    pub user_created_agents :  Option<Vec<Principal>>,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
 pub struct Profileinput {
-    pub email_id: String,
-    pub profile_img: String,
     pub username: String,
-    pub description: String,
-    pub contact_number: String,
     pub twitter_id: String,
-    pub telegram: String,
     pub website: String,
-    pub tag_defines: Vec<String>,
-
-    // image data
-    pub image_content: ByteBuf,
-    pub image_title: String,
-    pub image_content_type: String,
+    pub user_created_agents : Option<Vec<Principal>>,
 }
 
-// basic profile
-#[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct MinimalProfileinput {
-    pub email_id: String,
-    // pub profile_img: String,
-    pub name: String,
-
-    // image data
-    pub image_content: ByteBuf,
-    pub image_title: String,
-    pub image_content_type: String,
-}
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub enum MetadataValue {
@@ -561,48 +535,76 @@ pub struct ICRC1LedgerInitArgs {
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
+pub enum AgentType {
+    GenesisLaunch,
+    StandardLaunch
+}
+
+#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentInput {
     pub agent_name: String,
-    pub agent_desc: String,
-    pub purpose: String,
-    pub link_of_document: String,
-    pub cool_down_period: u32,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
     pub members: Vec<Principal>,
-    pub linksandsocials: Vec<String>,
-    pub required_votes: u32,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub agent_discord : String,
+    pub agent_telegram : String,
     pub token_name: String,
     pub token_symbol: String,
     pub token_supply: u32,
+    pub agent_description: String,
     pub image_id: String,
     pub image_content: ByteBuf,
-    pub image_title: String,
     pub image_content_type: String,
-    pub agent_associated_ledger: Principal
+    pub image_title : String,
+    pub agent_lunch_time : u64,
+    pub image_canister: Principal,
+    pub members_count: u32,
 }
 
-    #[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
+#[derive(Clone, CandidType, Serialize, Deserialize, Debug)]
 pub struct AgentCanisterInput {
     pub agent_name: String,
-    pub purpose: String,
-    pub link_of_document: String,
-    pub cool_down_period: u32,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
     pub members: Vec<Principal>,
-    pub linksandsocials: Vec<String>,
-    pub required_votes: u32,
     pub token_symbol: String,
     pub token_supply: u32,
     pub image_id: String,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub agent_discord : String,
+    pub agent_telegram : String,
+    pub token_name: String,
     pub image_canister: Principal,
-    pub parent_agent_canister_id: Principal,
-    pub all_agent_user : Vec<Principal>,
+    pub agent_description: String,
+    pub agent_lunch_time : u64,
+    pub members_count: u32,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct AgentDetails {
+pub struct  AgentDetails {
     pub agent_name: String,
-    pub agnet_desc: String,
     pub agent_canister_id: Principal,
     pub agent_associated_ledger: Principal,
+    pub agent_category : String,
+    pub agent_type: AgentType,
+    pub agent_overview : String,
+    pub members: Vec<Principal>,
+    pub token_symbol: String,
+    pub token_supply: u32,
+    pub image_id: String,
+    pub image_title : String,
+    pub agent_website : String,
+    pub agent_twitter : String,
+    pub agent_discord : String,
+    pub agent_telegram : String,
+    pub token_name: String,
+    pub agent_description: String,
+    pub agent_lunch_time : u64,
 }
 
 #[derive(Clone, CandidType, Serialize, Deserialize)]
@@ -643,13 +645,6 @@ pub struct PostInput {
     pub image_content_type: String,
 }
 
-#[derive(Clone, CandidType, Serialize, Deserialize)]
-pub struct ImageData {
-    pub content: ByteBuf,
-    pub name: String,
-    pub content_type: String,
-}
-
 // comment
 #[derive(Clone, CandidType, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Comment {
@@ -673,12 +668,6 @@ pub struct LedgerCanisterId {
 }
 
 #[derive(CandidType, Serialize, Deserialize)]
-pub struct Pagination {
-    pub start: u32,
-    pub end: u32,
-}
-
-#[derive(CandidType, Serialize, Deserialize)]
 pub struct WasmArgs {
     pub wasm: Vec<u8>,
 }
@@ -688,6 +677,7 @@ pub struct InitialArgs {
     pub payment_recipient: Principal, 
     pub ic_asset_canister_id: Principal,
     pub agent_canister_id: Principal,
+    pub neuropad_ledger_id: Principal,
 }
 
 // LEDGER PARAMS
@@ -708,6 +698,7 @@ pub struct CanisterData {
     pub ic_asset_canister: Principal,
     pub agent_canister: Principal,
     pub paymeny_recipient: Principal,
+    pub neuropad_ledger_id: Principal,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Debug)]
