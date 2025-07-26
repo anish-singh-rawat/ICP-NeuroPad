@@ -10,18 +10,13 @@ import {
   DollarSign,
   Users,
   PieChart,
-  ArrowRight,
   Check,
-  AlertTriangle,
   Info,
   Shield,
   TrendingUp,
   Target,
-  FileText,
-  Upload,
   Brain,
   Settings,
-  Star,
   Coins,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -31,9 +26,7 @@ import { Label } from "../components/ui/label";
 import { Badge } from "../components/ui/badge";
 import { cn } from "../lib/utils";
 import { Principal } from "@dfinity/principal";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { NeuroPad_backend } from "../../../declarations/NeuroPad_backend";
-import { F } from "framer-motion/dist/types.d-Bq-Qm38R";
+import { useAuth } from "../auth/useAuthClient";
 
 interface FormData {
   launchType: "genesis" | "standard" | "";
@@ -93,6 +86,7 @@ export default function Launch() {
     image_content: null,
     image_content_type: "image/png",
   });
+  const { backendActor } = useAuth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -178,7 +172,7 @@ const fileToUint8Array = async (file: File): Promise<Uint8Array> => {
         agent_website: formData.website,
         image_content_type: formData.image_content_type,
         image_content: imageContent,
-        image_id: formData.image_id as string,
+        image_id: formData.image_id.toString(),
         image_title: formData.image_title as string,
         members_count: 1,
         agent_overview: formData.agentOverview,
@@ -188,8 +182,7 @@ const fileToUint8Array = async (file: File): Promise<Uint8Array> => {
       };
 
       console.log("Payload → ", payload);
-      const result: any =
-        await NeuroPad_backend.make_payment_and_create_agent(payload);
+      const result: any = await backendActor.make_payment_and_create_agent(payload);
       console.log("Canister response:", result);
 
       if (result.Ok) {

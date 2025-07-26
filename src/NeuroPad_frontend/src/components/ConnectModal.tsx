@@ -68,6 +68,7 @@ export default function ConnectModal({
         username: formData.name,
         twitter_id: formData.twitter,
         website: formData.website,
+        user_created_agents : [],
       };
       const result = await backendActor.create_user_profile(payload);
       if (result.Ok) {
@@ -325,16 +326,6 @@ export default function ConnectModal({
                         </div>
                       </div>
                       <div>
-                        {isOpen ? (
-                          <Button
-                          onClick={handleLogout}
-                          className="w-full bg-gradient-to-r from-neuro-500 to-electric-500 hover:from-neuro-600 hover:to-electric-600 text-white h-12 shadow-lg">
-                          <div className="flex items-center space-x-2">
-                            <CheckCircle className="w-5 h-5" />
-                            <span>Logout</span>
-                          </div>
-                          </Button>
-                        ) : (
                           <Button
                             onClick={handleSubmit}
                             disabled={!isStep2Valid || isConnecting}
@@ -352,7 +343,7 @@ export default function ConnectModal({
                               </div>
                             )}
                           </Button>
-                        )}
+                      
                       </div>
                     </div>
                   </motion.div>

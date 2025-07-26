@@ -51,9 +51,9 @@ pub async fn create_ledger_canister(ledger_args: LedgerArg) -> Result<Principal,
         arg: ledger_args_bytes,
     };
 
-    ic_cdk::println!("next is installcode");
-
+    
     install_code_in_canister(arg1, wasm_module).await.unwrap();
+    ic_cdk::println!("next is installcode {:?}", canister_id_principal.to_text().clone());
 
     Ok(canister_id_principal)
 }

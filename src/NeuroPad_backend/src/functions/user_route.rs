@@ -52,8 +52,7 @@ async fn create_user_profile(
     Ok(())
 }
 
-pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
-    let principal_id = ic_cdk::api::caller();
+pub async fn create_agent(agent_detail: AgentInput, principal_id : Principal) -> Result<String, String> {
     let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
 
     let mut user_profile_detail = match user_profile_detail {
@@ -61,10 +60,13 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
         None => return Err(String::from(crate::utils::USER_DOES_NOT_EXIST)),
     };
 
+    ic_cdk::println!("Creating agent with details: {:?}", agent_detail);
 
     let agent_canister_id = create_agent_canister(agent_detail.clone())
         .await
         .map_err(|err| format!("{} {}", crate::utils::CREATE_AGENT_CANISTER_FAIL, err))?;
+
+    ic_cdk::println!("Agent canister created with id: {}", agent_canister_id.to_string());
 
     // to create ledger canister
     let ledger_canister_id = create_new_ledger_canister(agent_detail.clone(), agent_canister_id).await;
@@ -87,6 +89,8 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     .map_err(|err| format!("Error {}", err));
 
     let ledger_canister_id = res.map_err(|err| format!("Error in ledger canister id: {}", err))?;
+
+    ic_cdk::println!("Ledger canister created with id: {}", ledger_canister_id.to_string());
 
     let agent_details = AgentDetails {
         agent_canister_id: agent_canister_id.clone(),
@@ -115,6 +119,13 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
             .insert(agent_canister_id.clone(), agent_details)
     });
 
+
+    // with_state(|state| {
+    //     state
+    //         .user_profile
+    //         .insert(ic_cdk::api::caller(), agent_details)
+    // });
+
     // user_profile_detail.agent_ids.push(agent_canister_id.clone());
 
     match call_inter_canister::<Principal, ()>(
@@ -124,19 +135,28 @@ pub async fn create_agent(agent_detail: AgentInput) -> Result<String, String> {
     )
     .await
     {
-        Ok(()) => {}
+        Ok(()) => { ic_cdk::println!("Ledger canister id added to agent canister successfully"); }
         Err(err) => {
             return Err(format!("{}{}", crate::utils::INTER_CANISTER_FAILED, err));
         }
     }
+
+    ic_cdk::println!("Agent created, canister id: {} ledger id: {}", agent_canister_id.to_string(), ledger_canister_id.to_string());
     
     with_state(|state| {
-        if let Some(profile) = state.user_profile.get(&api::caller()) {
+        if let Some(profile) = state.user_profile.get(&principal_id) {
             let updated_profile = profile.clone();
             // updated_profile.join_agent.push(agent_canister_id.clone());
+            ic_cdk::println!("updated profile {:?}", updated_profile);
             state.user_profile.insert(principal_id, updated_profile);
         }
     });
+
+    ic_cdk::println!(
+        "Agent created, canister id: {} ledger id: {}",
+        agent_canister_id.to_string().clone(),
+        ledger_canister_id.to_string().clone()
+    );
 
     Ok(format!(
         "Agent created, canister id: {} ledger id: {}",

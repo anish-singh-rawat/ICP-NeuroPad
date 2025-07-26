@@ -1,6 +1,6 @@
 use crate::{with_state, AgentDetails, AgentInput};
 use candid::{Nat, Principal};
-use ic_cdk::{api, update};
+use ic_cdk::update;
 use ic_cdk_timers::set_timer;
 use icrc_ledger_types::{
     icrc1::{account::Account, transfer::BlockIndex},
@@ -66,24 +66,24 @@ async fn transfer(tokens: Nat, user_principal: Principal) -> Result<BlockIndex, 
 #[update]
 async fn make_payment_and_create_agent(agent_details: AgentInput) -> Result<String, String> {
     let agent_clone = agent_details.clone();
+    let principal_id = ic_cdk::api::caller();
+    let now = ic_cdk::api::time();
+    let trigger_at = agent_details.agent_lunch_time;
+    let delay = trigger_at.saturating_sub(now);
 
-    set_timer(
-        Duration::from_nanos(agent_details.agent_lunch_time),
-        move || {
-            let agent_clone = agent_clone.clone();
-            ic_cdk::spawn(async move {
-                let result = create_agent(agent_clone).await;
-                match result {
-                    Ok(success_msg) => ic_cdk::println!("Agent created: {}", success_msg),
-                    Err(err_msg) => ic_cdk::println!("Failed to create agent: {}", err_msg),
-                }
-            });
-        },
-    );
+    set_timer(Duration::from_nanos(delay), move || {
+        let agent_clone = agent_clone.clone();
+        ic_cdk::spawn(async move {
+            let result = create_agent(agent_clone, principal_id).await;
+            match result {
+                Ok(success_msg) => ic_cdk::println!("Agent created: {}", success_msg),
+                Err(err_msg) => ic_cdk::println!("Failed to create agent: {}", err_msg),
+            }
+        });
+    });
 
     Ok("Timer set to create agent later ✅".to_string())
 }
-
 
 #[query(guard = prevent_anonymous)]
 fn search_agent(agent_name: String) -> Vec<AgentDetails> {

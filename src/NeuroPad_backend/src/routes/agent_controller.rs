@@ -8,18 +8,7 @@ use crate::with_state;
 use candid::{Nat, Principal};
 
 pub async fn create_agent_canister(agent_detail: crate::AgentInput) -> Result<Principal, String> {
-    let principal_id = ic_cdk::api::caller();
-    let user_profile_detail = with_state(|state| state.user_profile.get(&principal_id).clone());
-
-    let _user_profile_detail = match user_profile_detail {
-        Some(data) => data,
-        None => panic!("User profile doesn't exist !"),
-    };
-
-    let mut updated_members = agent_detail.members.clone();
-    if !updated_members.contains(&principal_id) {
-        updated_members.push(principal_id.clone());
-    }
+    let updated_members = agent_detail.members.clone();
 
     let image_id: Result<String, String> = super::upload_image(
         crate::ImageData {
